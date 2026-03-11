@@ -49,8 +49,8 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .live-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--green);letter-spacing:1px;}
 #clock-wrap{text-align:right;}
-#clock{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);}
-#clock-tz{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);letter-spacing:.5px;}
+#clock{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:#ffffff;}
+#clock-tz{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;color:#ffffff;letter-spacing:.5px;}
 
 /* ══ NAV ══ */
 #navbar{height:32px;background:var(--bg);border-bottom:1px solid var(--border);
@@ -88,13 +88,13 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .page{display:none;}.page.active{display:block;}
 
 /* ══ CHART LAYOUT ══ */
-#app-layout{display:grid;grid-template-columns:268px 1fr 280px;height:calc(100vh - 115px);overflow:hidden;}
+#app-layout{display:grid;grid-template-columns:300px 1fr 280px;height:calc(100vh - 130px);overflow:hidden;}
 #sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .sb-head{padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg);}
 .sb-head input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 7px;outline:none;}
 .sb-head input:focus{border-color:var(--accent);}
 .sb-head input::placeholder{color:var(--text3);}
-.sector-pills{display:flex;padding:5px 7px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;gap:3px;}
+.sector-pills{display:flex;flex-wrap:wrap;padding:5px 7px;border-bottom:1px solid var(--border);gap:3px;}
 .sector-pills::-webkit-scrollbar{display:none;}
 .spill{padding:2px 7px;background:none;border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .1s;}
 .spill:hover{border-color:var(--accent);color:var(--accent);}
@@ -123,8 +123,8 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .sh-chg.up{background:rgba(38,166,154,.12);color:var(--green);}
 .sh-chg.dn{background:rgba(239,83,80,.12);color:var(--red);}
 .sh-stats{display:flex;gap:14px;margin-left:auto;}
-.sh-stat-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
-.sh-stat-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);margin-top:1px;}
+.sh-stat-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#ffffff;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.sh-stat-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#ffffff;font-weight:700;margin-top:1px;}
 #chart-toolbar{padding:5px 12px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:3px;}
 .tf-btn{padding:2px 7px;background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);cursor:pointer;border-radius:2px;transition:all .1s;}
 .tf-btn:hover{background:var(--card2);color:var(--text);}
@@ -136,8 +136,8 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 #mainChart{width:100%!important;height:100%!important;}
 #bottom-bar{padding:0;background:var(--border);display:grid;grid-template-columns:repeat(6,1fr);gap:1px;}
 .bb-cell{background:var(--panel);padding:5px 10px;}
-.bb-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
-.bb-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);margin-top:2px;}
+.bb-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#ffffff;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.bb-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#ffffff;font-weight:700;margin-top:2px;}
 
 /* ══ TRADING PANEL (right side) ══ */
 #trade-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
@@ -429,9 +429,9 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 
 <!-- NAV -->
 <div id="navbar">
-  <button class="nav-btn active" data-page="chart" onclick="showPage('chart',this)">📈 CHART</button>
+  <button class="nav-btn active" data-page="chart" onclick="showPage('chart',this)">📈 PSX COMPANIES</button>
   <button class="nav-btn" data-page="market" onclick="showPage('market',this)">🏛 MARKET</button>
-  <button class="nav-btn" data-page="screener" onclick="showPage('screener',this)">🔍 SCREENER</button>
+  <button class="nav-btn" data-page="screener" onclick="showPage('screener',this)">🔍 BROWSE STOCKS</button>
   <button class="nav-btn" data-page="trades" onclick="showPage('trades',this)">💼 MY TRADES <span class="lock-icon" id="trades-lock-icon">🔒</span></button>
   <div class="nav-spacer"></div>
   <div id="user-nav"></div>
@@ -752,99 +752,135 @@ const COMPANIES=[
   {sym:'MCB',name:'MCB Bank Limited',sec:'Banking',price:367.97,chg:10.62,pct:2.97,vol:7200000,mcap:436070000000,pe:8.9,div:8.4},
   {sym:'PAKT',name:'Pakistan Tobacco Co.',sec:'Tobacco',price:1497.28,chg:-13.28,pct:-0.88,vol:890000,mcap:382550000000,pe:14.2,div:5.6},
   {sym:'NESTLE',name:'Nestlé Pakistan Ltd.',sec:'Food',price:8000.00,chg:0,pct:0,vol:120000,mcap:362800000000,pe:32.1,div:2.1},
-  {sym:'BWCL',name:'Bestway Cement Limited',sec:'Cement',price:545.02,chg:0.71,pct:0.13,vol:2800000,mcap:324950000000,pe:8.2,div:4.4},
+  {sym:'BWCL',name:'Bestway Cement Ltd.',sec:'Cement',price:545.02,chg:0.71,pct:0.13,vol:2800000,mcap:324950000000,pe:8.2,div:4.4},
   {sym:'FATIMA',name:'Fatima Fertilizer Co.',sec:'Fertilizer',price:149.83,chg:0.03,pct:0.02,vol:10200000,mcap:314580000000,pe:6.4,div:10.8},
   {sym:'COLG',name:'Colgate-Palmolive Pakistan',sec:'Consumer',price:1280.01,chg:1.41,pct:0.11,vol:480000,mcap:310750000000,pe:28.4,div:2.8},
   {sym:'EFERT',name:'Engro Fertilizers Ltd.',sec:'Fertilizer',price:219.43,chg:3.45,pct:1.60,vol:8900000,mcap:293000000000,pe:7.2,div:9.6},
-  {sym:'HUBC',name:'The Hub Power Company',sec:'Power',price:224.57,chg:2.34,pct:1.05,vol:5400000,mcap:288270000000,pe:9.8,div:7.4},
-  {sym:'ENGROH',name:'Engro Holding Limited',sec:'Holding',price:216.41,chg:-1.17,pct:-0.54,vol:6700000,mcap:262020000000,pe:8.6,div:5.2},
-  {sym:'SCBPL',name:'Standard Chartered Pak.',sec:'Banking',price:67.50,chg:0.25,pct:0.37,vol:4100000,mcap:261330000000,pe:10.4,div:4.8},
+  {sym:'HUBC',name:'Hub Power Company',sec:'Power',price:224.57,chg:2.34,pct:1.05,vol:5400000,mcap:288270000000,pe:9.8,div:7.4},
+  {sym:'ENGROH',name:'Engro Holding Ltd.',sec:'Holding',price:216.41,chg:-1.17,pct:-0.54,vol:6700000,mcap:262020000000,pe:8.6,div:5.2},
+  {sym:'SCBPL',name:'Standard Chartered Pakistan',sec:'Banking',price:67.50,chg:0.25,pct:0.37,vol:4100000,mcap:261330000000,pe:10.4,div:4.8},
   {sym:'SYS',name:'Systems Limited',sec:'Technology',price:164.85,chg:3.86,pct:2.39,vol:3200000,mcap:242800000000,pe:24.6,div:1.2},
-  {sym:'PTC',name:'Pakistan Telecom. Co.',sec:'Telecom',price:45.86,chg:-0.30,pct:-0.65,vol:18400000,mcap:235420000000,pe:7.8,div:6.2},
+  {sym:'PTC',name:'Pakistan Telecom Co.',sec:'Telecom',price:45.86,chg:-0.30,pct:-0.65,vol:18400000,mcap:235420000000,pe:7.8,div:6.2},
   {sym:'PSO',name:'Pakistan State Oil Co.',sec:'Energy',price:469.36,chg:1.50,pct:0.32,vol:8900000,mcap:219650000000,pe:5.1,div:11.4},
   {sym:'ABL',name:'Allied Bank Limited',sec:'Banking',price:181.87,chg:-0.86,pct:-0.47,vol:5600000,mcap:209240000000,pe:6.8,div:7.8},
-  {sym:'BAHL',name:'Bank AL Habib Limited',sec:'Banking',price:184.59,chg:1.08,pct:0.59,vol:4800000,mcap:205160000000,pe:7.4,div:6.4},
+  {sym:'BAHL',name:'Bank AL Habib Ltd.',sec:'Banking',price:184.59,chg:1.08,pct:0.59,vol:4800000,mcap:205160000000,pe:7.4,div:6.4},
   {sym:'ATLH',name:'Atlas Honda Limited',sec:'Automobile',price:1430.04,chg:-2.86,pct:-0.20,vol:1200000,mcap:177800000000,pe:14.8,div:4.2},
   {sym:'POL',name:'Pakistan Oilfields Ltd.',sec:'Energy',price:619.52,chg:2.54,pct:0.41,vol:2400000,mcap:175850000000,pe:7.6,div:10.2},
   {sym:'BAFL',name:'Bank Alfalah Limited',sec:'Banking',price:104.89,chg:0.16,pct:0.15,vol:7800000,mcap:165430000000,pe:6.2,div:8.6},
   {sym:'KEL',name:'K-Electric Limited',sec:'Power',price:5.62,chg:-0.05,pct:-0.88,vol:42000000,mcap:156580000000,pe:0,div:0},
   {sym:'INDU',name:'Indus Motor Company',sec:'Automobile',price:1977.02,chg:9.84,pct:0.50,vol:980000,mcap:154630000000,pe:18.4,div:3.6},
-  {sym:'FCCL',name:'Fauji Cement Company',sec:'Cement',price:57.47,chg:1.34,pct:2.39,vol:11200000,mcap:137680000000,pe:7.4,div:5.2},
+  {sym:'FCCL',name:'Fauji Cement Co.',sec:'Cement',price:57.47,chg:1.34,pct:2.39,vol:11200000,mcap:137680000000,pe:7.4,div:5.2},
   {sym:'AKBL',name:'Askari Bank Limited',sec:'Banking',price:94.24,chg:-0.60,pct:-0.63,vol:6200000,mcap:136580000000,pe:5.8,div:9.2},
   {sym:'FABL',name:'Faysal Bank Limited',sec:'Banking',price:89.68,chg:0.42,pct:0.47,vol:5800000,mcap:135470000000,pe:6.4,div:7.6},
-  {sym:'MLCF',name:'Maple Leaf Cement Factory',sec:'Cement',price:123.34,chg:3.82,pct:3.19,vol:15600000,mcap:125220000000,pe:9.2,div:3.8},
+  {sym:'LCI',name:'Lucky Core Industries',sec:'Chemical',price:293.33,chg:0.21,pct:0.07,vol:2800000,mcap:135370000000,pe:11.2,div:4.2},
+  {sym:'MLCF',name:'Maple Leaf Cement',sec:'Cement',price:123.34,chg:3.82,pct:3.19,vol:15600000,mcap:125220000000,pe:9.2,div:3.8},
   {sym:'GLAXO',name:'GlaxoSmithKline Pakistan',sec:'Pharma',price:390.50,chg:0.04,pct:0.01,vol:1800000,mcap:124350000000,pe:22.6,div:2.4},
   {sym:'HMB',name:'Habib Metropolitan Bank',sec:'Banking',price:112.00,chg:0,pct:0,vol:3200000,mcap:117360000000,pe:6.8,div:8.2},
-  {sym:'BOP',name:'The Bank of Punjab',sec:'Banking',price:35.25,chg:0.29,pct:0.83,vol:18400000,mcap:114370000000,pe:4.2,div:10.4},
+  {sym:'BOP',name:'Bank of Punjab',sec:'Banking',price:35.25,chg:0.29,pct:0.83,vol:18400000,mcap:114370000000,pe:4.2,div:10.4},
   {sym:'ILP',name:'Interloop Limited',sec:'Textile',price:78.09,chg:-0.59,pct:-0.75,vol:9200000,mcap:109460000000,pe:11.4,div:3.2},
   {sym:'DGKC',name:'D.G. Khan Cement Co.',sec:'Cement',price:242.04,chg:-1.73,pct:-0.71,vol:4400000,mcap:106800000000,pe:8.8,div:4.6},
-  {sym:'MTL',name:'Millat Tractors Limited',sec:'Automobile',price:509.19,chg:1.42,pct:0.28,vol:1800000,mcap:101310000000,pe:12.2,div:5.8},
+  {sym:'MTL',name:'Millat Tractors Ltd.',sec:'Automobile',price:509.19,chg:1.42,pct:0.28,vol:1800000,mcap:101310000000,pe:12.2,div:5.8},
+  {sym:'SAZEW',name:'Sazgar Engineering Works',sec:'Automobile',price:1668.97,chg:-4.54,pct:-0.27,vol:980000,mcap:100880000000,pe:14.6,div:3.4},
   {sym:'ABOT',name:'Abbott Laboratories Pak.',sec:'Pharma',price:1023.58,chg:5.42,pct:0.53,vol:680000,mcap:100210000000,pe:26.4,div:1.8},
-  {sym:'KOHC',name:'Kohat Cement Company',sec:'Cement',price:104.14,chg:-4.39,pct:-4.05,vol:6800000,mcap:96310000000,pe:7.6,div:5.4},
-  {sym:'PIOC',name:'Pioneer Cement Limited',sec:'Cement',price:412.14,chg:3.36,pct:0.82,vol:2200000,mcap:92860000000,pe:10.4,div:3.4},
-  {sym:'NATF',name:'National Foods Limited',sec:'Food',price:390.94,chg:-1.06,pct:-0.27,vol:1800000,mcap:91130000000,pe:18.6,div:2.6},
+  {sym:'KOHC',name:'Kohat Cement Co.',sec:'Cement',price:104.14,chg:-4.39,pct:-4.05,vol:6800000,mcap:96310000000,pe:7.6,div:5.4},
+  {sym:'HALEON',name:'Haleon Pakistan Ltd.',sec:'Consumer',price:824.14,chg:-15.97,pct:-1.90,vol:880000,mcap:96470000000,pe:22.4,div:2.2},
+  {sym:'PIOC',name:'Pioneer Cement Ltd.',sec:'Cement',price:412.14,chg:3.36,pct:0.82,vol:2200000,mcap:92860000000,pe:10.4,div:3.4},
+  {sym:'NATF',name:'National Foods Ltd.',sec:'Food',price:390.94,chg:-1.06,pct:-0.27,vol:1800000,mcap:91130000000,pe:18.6,div:2.6},
   {sym:'PNSC',name:'Pakistan National Shipping',sec:'Transport',price:447.86,chg:-8.80,pct:-1.93,vol:2100000,mcap:88660000000,pe:8.4,div:6.8},
+  {sym:'RMPL',name:'Rafhan Maize Products',sec:'Food',price:9329.01,chg:6.33,pct:0.07,vol:68000,mcap:86100000000,pe:24.6,div:2.4},
+  {sym:'UPFL',name:'Unilever Pakistan Foods',sec:'Food',price:28863.2,chg:152.8,pct:0.53,vol:18000,mcap:182880000000,pe:28.4,div:2.4},
+  {sym:'ISIL',name:'Ismail Industries Ltd.',sec:'Food',price:1975.00,chg:5.93,pct:0.30,vol:480000,mcap:130670000000,pe:16.8,div:2.8},
   {sym:'SNGP',name:'Sui Northern Gas Pipelines',sec:'Energy',price:118.05,chg:0.65,pct:0.55,vol:6800000,mcap:74870000000,pe:5.2,div:8.4},
-  {sym:'ATRL',name:'Attock Refinery Limited',sec:'Energy',price:657.38,chg:-3.56,pct:-0.54,vol:1400000,mcap:70380000000,pe:6.8,div:7.2},
-  {sym:'CHCC',name:'Cherat Cement Company',sec:'Cement',price:346.84,chg:-6.48,pct:-1.83,vol:1900000,mcap:69910000000,pe:9.4,div:4.2},
+  {sym:'ATRL',name:'Attock Refinery Ltd.',sec:'Energy',price:657.38,chg:-3.56,pct:-0.54,vol:1400000,mcap:70380000000,pe:6.8,div:7.2},
+  {sym:'CHCC',name:'Cherat Cement Co.',sec:'Cement',price:346.84,chg:-6.48,pct:-1.83,vol:1900000,mcap:69910000000,pe:9.4,div:4.2},
+  {sym:'FCEPL',name:'FrieslandCampina Engro',sec:'Food',price:86.73,chg:-1.25,pct:-1.42,vol:4800000,mcap:66490000000,pe:12.8,div:3.2},
   {sym:'AIRLINK',name:'Air Link Communication',sec:'Technology',price:173.19,chg:1.60,pct:0.93,vol:8200000,mcap:67830000000,pe:16.8,div:2.4},
-  {sym:'APL',name:'Attock Petroleum Limited',sec:'Energy',price:556.79,chg:0.45,pct:0.08,vol:2100000,mcap:66440000000,pe:5.4,div:9.6},
+  {sym:'APL',name:'Attock Petroleum Ltd.',sec:'Energy',price:556.79,chg:0.45,pct:0.08,vol:2100000,mcap:66440000000,pe:5.4,div:9.6},
   {sym:'NML',name:'Nishat Mills Limited',sec:'Textile',price:186.26,chg:9.57,pct:5.40,vol:6400000,mcap:65490000000,pe:8.6,div:4.8},
+  {sym:'PKGS',name:'Packages Limited',sec:'Packaging',price:731.35,chg:3.36,pct:0.46,vol:1200000,mcap:65070000000,pe:14.2,div:3.6},
   {sym:'SEARL',name:'The Searle Company',sec:'Pharma',price:106.44,chg:0.59,pct:0.56,vol:3800000,mcap:62610000000,pe:19.4,div:2.2},
+  {sym:'TRG',name:'TRG Pakistan Limited',sec:'Technology',price:71.70,chg:0.27,pct:0.38,vol:6200000,mcap:38960000000,pe:0,div:0},
   {sym:'AGP',name:'AGP Limited',sec:'Pharma',price:190.59,chg:0.72,pct:0.38,vol:2400000,mcap:53160000000,pe:21.6,div:1.8},
   {sym:'PAEL',name:'Pak Elektron Limited',sec:'Engineering',price:54.67,chg:-0.29,pct:-0.53,vol:9800000,mcap:50760000000,pe:12.8,div:2.4},
+  {sym:'FFL',name:'Fauji Foods Limited',sec:'Food',price:19.75,chg:-0.18,pct:-0.90,vol:8400000,mcap:50220000000,pe:0,div:0},
+  {sym:'WAFI',name:'Wafi Energy Pakistan',sec:'Energy',price:212.91,chg:0.96,pct:0.45,vol:3200000,mcap:45570000000,pe:6.4,div:7.8},
+  {sym:'LOTCHEM',name:'Lotte Chemical Pakistan',sec:'Chemical',price:29.78,chg:0.03,pct:0.10,vol:6800000,mcap:45090000000,pe:0,div:0},
   {sym:'ISL',name:'International Steels Ltd.',sec:'Steel',price:111.65,chg:0.28,pct:0.25,vol:4200000,mcap:48570000000,pe:8.4,div:5.6},
-  {sym:'JDWS',name:'JDW Sugar Mills Limited',sec:'Sugar',price:844.37,chg:12.30,pct:1.48,vol:1100000,mcap:48080000000,pe:9.2,div:4.4},
-  {sym:'SSGC',name:'Sui Southern Gas Company',sec:'Energy',price:41.39,chg:-1.06,pct:-2.50,vol:12400000,mcap:36460000000,pe:4.8,div:7.6},
+  {sym:'JDWS',name:'JDW Sugar Mills Ltd.',sec:'Sugar',price:844.37,chg:12.30,pct:1.48,vol:1100000,mcap:48080000000,pe:9.2,div:4.4},
+  {sym:'ACPL',name:'Attock Cement Pakistan',sec:'Cement',price:281.87,chg:0.03,pct:0.01,vol:1800000,mcap:38730000000,pe:9.8,div:4.4},
+  {sym:'THALL',name:'Thal Limited',sec:'Engineering',price:530.03,chg:-9.45,pct:-1.75,vol:1400000,mcap:42950000000,pe:12.6,div:3.8},
+  {sym:'CNERGY',name:'Cnergyico PK Limited',sec:'Energy',price:7.72,chg:-0.07,pct:-0.90,vol:32000000,mcap:42520000000,pe:0,div:0},
+  {sym:'DCR',name:'Dolmen City REIT',sec:'Real Estate',price:35.52,chg:0.08,pct:0.23,vol:4200000,mcap:78990000000,pe:14.2,div:6.8},
+  {sym:'JVDC',name:'Javedan Corporation',sec:'Real Estate',price:77.58,chg:-2.52,pct:-3.16,vol:3400000,mcap:29550000000,pe:0,div:0},
+  {sym:'AGL',name:'Agritech Limited',sec:'Fertilizer',price:68.41,chg:-0.49,pct:-0.71,vol:5200000,mcap:41280000000,pe:0,div:0},
+  {sym:'HCAR',name:'Honda Atlas Cars',sec:'Automobile',price:281.02,chg:0.31,pct:0.11,vol:2800000,mcap:40090000000,pe:14.8,div:3.2},
+  {sym:'FLYNG',name:'Flying Cement Co.',sec:'Cement',price:54.74,chg:0.03,pct:0.06,vol:6400000,mcap:38030000000,pe:12.2,div:2.8},
+  {sym:'GHGL',name:'Ghani Glass Limited',sec:'Glass',price:37.68,chg:0.35,pct:0.94,vol:7800000,mcap:37320000000,pe:11.4,div:3.6},
+  {sym:'TGL',name:'Tariq Glass Industries',sec:'Glass',price:214.40,chg:-0.32,pct:-0.15,vol:2400000,mcap:36910000000,pe:12.8,div:3.2},
+  {sym:'PSX',name:'Pakistan Stock Exchange',sec:'Financial',price:45.64,chg:0.12,pct:0.26,vol:3200000,mcap:36480000000,pe:14.6,div:5.2},
+  {sym:'SSGC',name:'Sui Southern Gas Co.',sec:'Energy',price:41.39,chg:-1.06,pct:-2.50,vol:12400000,mcap:36460000000,pe:4.8,div:7.6},
   {sym:'EPCL',name:'Engro Polymer & Chemicals',sec:'Chemical',price:38.58,chg:0.66,pct:1.74,vol:7800000,mcap:34470000000,pe:11.2,div:3.8},
-  {sym:'NRL',name:'National Refinery Limited',sec:'Energy',price:422.73,chg:5.42,pct:1.30,vol:1800000,mcap:33370000000,pe:6.2,div:8.4},
+  {sym:'NRL',name:'National Refinery Ltd.',sec:'Energy',price:422.73,chg:5.42,pct:1.30,vol:1800000,mcap:33370000000,pe:6.2,div:8.4},
   {sym:'SHFA',name:'Shifa International Hospitals',sec:'Healthcare',price:515.00,chg:-6.40,pct:-1.23,vol:980000,mcap:32960000000,pe:18.4,div:2.2},
   {sym:'MUGHAL',name:'Mughal Iron & Steel',sec:'Steel',price:88.39,chg:-1.62,pct:-1.80,vol:6800000,mcap:32590000000,pe:7.8,div:5.2},
-  {sym:'KAPCO',name:'Kot Addu Power Company',sec:'Power',price:36.41,chg:1.32,pct:3.76,vol:8400000,mcap:32050000000,pe:8.4,div:12.4},
+  {sym:'KAPCO',name:'Kot Addu Power Co.',sec:'Power',price:36.41,chg:1.32,pct:3.76,vol:8400000,mcap:32050000000,pe:8.4,div:12.4},
   {sym:'BIPL',name:'BankIslami Pakistan Ltd.',sec:'Banking',price:33.90,chg:-0.57,pct:-1.65,vol:7800000,mcap:37590000000,pe:5.6,div:6.8},
-  {sym:'BOK',name:'The Bank of Khyber',sec:'Banking',price:32.96,chg:0.61,pct:1.89,vol:6200000,mcap:37460000000,pe:4.8,div:8.2},
+  {sym:'BOK',name:'Bank of Khyber',sec:'Banking',price:32.96,chg:0.61,pct:1.89,vol:6200000,mcap:37460000000,pe:4.8,div:8.2},
   {sym:'AICL',name:'Adamjee Insurance Co.',sec:'Insurance',price:80.11,chg:-0.93,pct:-1.15,vol:3200000,mcap:28360000000,pe:12.4,div:4.2},
   {sym:'SNBL',name:'Soneri Bank Limited',sec:'Banking',price:25.70,chg:0.31,pct:1.22,vol:8400000,mcap:28200000000,pe:5.2,div:9.4},
   {sym:'PIBTL',name:'Pakistan Intl Bulk Terminal',sec:'Transport',price:15.63,chg:0.16,pct:1.03,vol:12400000,mcap:27630000000,pe:8.6,div:5.8},
   {sym:'UNITY',name:'Unity Foods Limited',sec:'Food',price:22.01,chg:-0.18,pct:-0.81,vol:14200000,mcap:26280000000,pe:9.8,div:3.6},
-  {sym:'GWLC',name:'Gharibwal Cement Limited',sec:'Cement',price:63.10,chg:0.34,pct:0.54,vol:6800000,mcap:25260000000,pe:7.4,div:5.6},
+  {sym:'GWLC',name:'Gharibwal Cement Ltd.',sec:'Cement',price:63.10,chg:0.34,pct:0.54,vol:6800000,mcap:25260000000,pe:7.4,div:5.6},
   {sym:'INIL',name:'International Industries',sec:'Steel',price:190.94,chg:-11.64,pct:-5.76,vol:4200000,mcap:25180000000,pe:8.2,div:6.4},
   {sym:'POWER',name:'Power Cement Limited',sec:'Cement',price:19.05,chg:0.06,pct:0.32,vol:14600000,mcap:24610000000,pe:11.4,div:3.2},
   {sym:'EFUG',name:'EFU General Insurance',sec:'Insurance',price:119.87,chg:-0.72,pct:-0.60,vol:1800000,mcap:23700000000,pe:10.8,div:4.8},
-  {sym:'AGTL',name:'Al-Ghazi Tractors Limited',sec:'Automobile',price:408.49,chg:2.04,pct:0.50,vol:980000,mcap:23560000000,pe:11.4,div:5.4},
-  {sym:'PRL',name:'Pakistan Refinery Limited',sec:'Energy',price:36.71,chg:-0.46,pct:-1.24,vol:8400000,mcap:23420000000,pe:7.2,div:6.8},
+  {sym:'IGIHL',name:'IGI Holdings Limited',sec:'Insurance',price:256.86,chg:5.31,pct:2.11,vol:2100000,mcap:36640000000,pe:11.8,div:3.4},
+  {sym:'AGTL',name:'Al-Ghazi Tractors Ltd.',sec:'Automobile',price:408.49,chg:2.04,pct:0.50,vol:980000,mcap:23560000000,pe:11.4,div:5.4},
+  {sym:'PRL',name:'Pakistan Refinery Ltd.',sec:'Energy',price:36.71,chg:-0.46,pct:-1.24,vol:8400000,mcap:23420000000,pe:7.2,div:6.8},
   {sym:'GATM',name:'Gul Ahmed Textile Mills',sec:'Textile',price:28.39,chg:-0.24,pct:-0.84,vol:9800000,mcap:21010000000,pe:7.8,div:4.2},
   {sym:'JKSM',name:'J.K. Spinning Mills',sec:'Textile',price:209.86,chg:9.85,pct:4.93,vol:2400000,mcap:20460000000,pe:10.4,div:3.8},
-  {sym:'DCR',name:'Dolmen City REIT',sec:'Real Estate',price:35.52,chg:0.08,pct:0.23,vol:4200000,mcap:78990000000,pe:14.2,div:6.8},
-  {sym:'LOTCHEM',name:'Lotte Chemical Pakistan',sec:'Chemical',price:29.78,chg:0.03,pct:0.10,vol:6800000,mcap:45090000000,pe:0,div:0},
-  {sym:'THALL',name:'Thal Limited',sec:'Engineering',price:530.03,chg:-9.45,pct:-1.75,vol:1400000,mcap:42950000000,pe:12.6,div:3.8},
-  {sym:'CNERGY',name:'Cnergyico PK Limited',sec:'Energy',price:7.72,chg:-0.07,pct:-0.90,vol:32000000,mcap:42520000000,pe:0,div:0},
-  {sym:'AGL',name:'Agritech Limited',sec:'Fertilizer',price:68.41,chg:-0.49,pct:-0.71,vol:5200000,mcap:41280000000,pe:0,div:0},
-  {sym:'HCAR',name:'Honda Atlas Cars Pakistan',sec:'Automobile',price:281.02,chg:0.31,pct:0.11,vol:2800000,mcap:40090000000,pe:14.8,div:3.2},
-  {sym:'FLYNG',name:'Flying Cement Company',sec:'Cement',price:54.74,chg:0.03,pct:0.06,vol:6400000,mcap:38030000000,pe:12.2,div:2.8},
-  {sym:'GHGL',name:'Ghani Glass Limited',sec:'Glass',price:37.68,chg:0.35,pct:0.94,vol:7800000,mcap:37320000000,pe:11.4,div:3.6},
-  {sym:'TGL',name:'Tariq Glass Industries',sec:'Glass',price:214.40,chg:-0.32,pct:-0.15,vol:2400000,mcap:36910000000,pe:12.8,div:3.2},
-  {sym:'DLL',name:'Dawood Lawrencepur Ltd.',sec:'Engineering',price:618.87,chg:-16.60,pct:-2.62,vol:980000,mcap:36700000000,pe:0,div:0},
-  {sym:'THCCL',name:'Thatta Cement Company',sec:'Cement',price:89.28,chg:1.81,pct:2.07,vol:3800000,mcap:37050000000,pe:8.6,div:4.8},
+  {sym:'PKGP',name:'Pakgen Power Limited',sec:'Power',price:59.84,chg:0.92,pct:1.56,vol:4800000,mcap:22270000000,pe:8.8,div:8.4},
+  {sym:'NPL',name:'Nishat Power Limited',sec:'Power',price:56.18,chg:-0.04,pct:-0.07,vol:3800000,mcap:19910000000,pe:7.6,div:9.2},
+  {sym:'JSCL',name:'Jahangir Siddiqui & Co.',sec:'Financial',price:26.57,chg:0.57,pct:2.19,vol:6800000,mcap:23810000000,pe:7.8,div:5.4},
+  {sym:'MUREB',name:'Murree Brewery Co.',sec:'Beverage',price:1050.00,chg:-0.21,pct:-0.02,vol:280000,mcap:29050000000,pe:16.4,div:3.2},
+  {sym:'FML',name:'Feroze1888 Mills Ltd.',sec:'Textile',price:71.75,chg:0.80,pct:1.13,vol:5800000,mcap:28000000000,pe:9.6,div:4.6},
+  {sym:'PIAHCLA',name:'PIA Holding Company',sec:'Transport',price:44.20,chg:-0.46,pct:-1.03,vol:14200000,mcap:267630000000,pe:0,div:0},
+  {sym:'SGF',name:'Service Global Footwear',sec:'Consumer',price:114.02,chg:1.94,pct:1.73,vol:4200000,mcap:23540000000,pe:10.4,div:4.8},
+  {sym:'PABC',name:'Pakistan Aluminium Bev. Cans',sec:'Packaging',price:134.77,chg:-1.51,pct:-1.11,vol:2400000,mcap:48670000000,pe:14.8,div:2.6},
+  {sym:'SRVI',name:'Service Industries Ltd.',sec:'Consumer',price:1550.81,chg:-57.69,pct:-3.57,vol:680000,mcap:72870000000,pe:12.4,div:3.8},
+  {sym:'PSEL',name:'Pakistan Services Ltd.',sec:'Hospitality',price:1349.82,chg:31.78,pct:2.41,vol:480000,mcap:42870000000,pe:22.4,div:1.8},
+  {sym:'NICL',name:'Nimir Industrial Chemicals',sec:'Chemical',price:231.50,chg:0.93,pct:0.40,vol:1400000,mcap:25600000000,pe:12.4,div:3.6},
+  {sym:'JSBL',name:'JS Bank Limited',sec:'Banking',price:16.63,chg:-0.10,pct:-0.60,vol:9800000,mcap:34100000000,pe:5.4,div:7.2},
+  {sym:'IPAK',name:'International Packaging Films',sec:'Packaging',price:28.13,chg:0.52,pct:1.88,vol:6800000,mcap:21720000000,pe:9.4,div:4.6},
+  {sym:'KTML',name:'Kohinoor Textile Mills',sec:'Textile',price:67.76,chg:-0.19,pct:-0.28,vol:4800000,mcap:91490000000,pe:0,div:0},
+  {sym:'SAPT',name:'Sapphire Textile Mills',sec:'Textile',price:1396.00,chg:0,pct:0,vol:180000,mcap:30280000000,pe:8.4,div:4.2},
   {sym:'GHNI',name:'Ghandhara Industries',sec:'Automobile',price:822.97,chg:-8.58,pct:-1.03,vol:680000,mcap:35070000000,pe:14.2,div:3.4},
   {sym:'GAL',name:'Ghandhara Automobiles',sec:'Automobile',price:551.06,chg:0.17,pct:0.03,vol:780000,mcap:31470000000,pe:12.8,div:3.8},
-  {sym:'WAFI',name:'Wafi Energy Pakistan',sec:'Energy',price:212.91,chg:0.96,pct:0.45,vol:3200000,mcap:45570000000,pe:6.4,div:7.8},
-  {sym:'SAZEW',name:'Sazgar Engineering Works',sec:'Automobile',price:1668.97,chg:-4.54,pct:-0.27,vol:980000,mcap:100880000000,pe:14.6,div:3.4},
-  {sym:'LCI',name:'Lucky Core Industries',sec:'Chemical',price:293.33,chg:0.21,pct:0.07,vol:2800000,mcap:135370000000,pe:11.2,div:4.2},
-  {sym:'ISIL',name:'Ismail Industries Limited',sec:'Food',price:1975.00,chg:5.93,pct:0.30,vol:480000,mcap:130670000000,pe:16.8,div:2.8},
-  {sym:'HALEON',name:'Haleon Pakistan Limited',sec:'Consumer',price:824.14,chg:-15.97,pct:-1.90,vol:880000,mcap:96470000000,pe:22.4,div:2.2},
-  {sym:'RMPL',name:'Rafhan Maize Products',sec:'Food',price:9329.01,chg:6.33,pct:0.07,vol:68000,mcap:86100000000,pe:24.6,div:2.4},
-  {sym:'PSX',name:'Pakistan Stock Exchange',sec:'Financial',price:45.64,chg:0.12,pct:0.26,vol:3200000,mcap:36480000000,pe:14.6,div:5.2},
-  {sym:'PKGP',name:'Pakgen Power Limited',sec:'Power',price:59.84,chg:0.92,pct:1.56,vol:4800000,mcap:22270000000,pe:8.8,div:8.4},
-  {sym:'JSCL',name:'Jahangir Siddiqui & Co.',sec:'Financial',price:26.57,chg:0.57,pct:2.19,vol:6800000,mcap:23810000000,pe:7.8,div:5.4},
-  {sym:'MUREB',name:'Murree Brewery Company',sec:'Beverage',price:1050.00,chg:-0.21,pct:-0.02,vol:280000,mcap:29050000000,pe:16.4,div:3.2},
-  {sym:'FML',name:'Feroze1888 Mills Limited',sec:'Textile',price:71.75,chg:0.80,pct:1.13,vol:5800000,mcap:28000000000,pe:9.6,div:4.6},
-  {sym:'FFL',name:'Fauji Foods Limited',sec:'Food',price:19.75,chg:-0.18,pct:-0.90,vol:8400000,mcap:50220000000,pe:0,div:0},
-  {sym:'PIAHCLA',name:'PIA Holding Company (A)',sec:'Transport',price:44.20,chg:-0.46,pct:-1.03,vol:14200000,mcap:267630000000,pe:0,div:0},
-  {sym:'UPFL',name:'Unilever Pakistan Foods',sec:'Food',price:28863.2,chg:152.8,pct:0.53,vol:18000,mcap:182880000000,pe:28.4,div:2.4},
-  {sym:'FCEPL',name:'FrieslandCampina Engro Pak.',sec:'Food',price:86.73,chg:-1.25,pct:-1.42,vol:4800000,mcap:66490000000,pe:12.8,div:3.2},
-  {sym:'SGF',name:'Service Global Footwear',sec:'Consumer',price:114.02,chg:1.94,pct:1.73,vol:4200000,mcap:23540000000,pe:10.4,div:4.8},
+  {sym:'CPHL',name:'Citi Pharma Limited',sec:'Pharma',price:88.06,chg:0.87,pct:0.99,vol:4800000,mcap:19920000000,pe:18.6,div:2.2},
+  {sym:'THCCL',name:'Thatta Cement Co.',sec:'Cement',price:89.28,chg:1.81,pct:2.07,vol:3800000,mcap:37050000000,pe:8.6,div:4.8},
+  {sym:'IMS',name:'Intermarket Securities',sec:'Financial',price:20.94,chg:-0.59,pct:-2.74,vol:4200000,mcap:26370000000,pe:8.2,div:6.4},
+  {sym:'PAEL2',name:'Pak Elektron (Pref)',sec:'Engineering',price:32.10,chg:0.14,pct:0.44,vol:2100000,mcap:18500000000,pe:0,div:4.2},
+  {sym:'DAWH',name:'Dawood Hercules Corp.',sec:'Holding',price:148.23,chg:1.12,pct:0.76,vol:3200000,mcap:42600000000,pe:6.8,div:5.4},
+  {sym:'ENGRO',name:'Engro Corporation Ltd.',sec:'Holding',price:289.45,chg:2.34,pct:0.82,vol:5600000,mcap:162800000000,pe:9.2,div:7.8},
+  {sym:'FFBL',name:'Fauji Fertilizer Bin Qasim',sec:'Fertilizer',price:24.18,chg:-0.32,pct:-1.31,vol:11200000,mcap:28400000000,pe:0,div:0},
+  {sym:'NCL',name:'Nishat Chunian Limited',sec:'Textile',price:54.32,chg:0.87,pct:1.63,vol:6800000,mcap:16200000000,pe:7.2,div:5.6},
+  {sym:'NETSOL',name:'NetSol Technologies',sec:'Technology',price:136.50,chg:2.14,pct:1.59,vol:2400000,mcap:14800000000,pe:18.4,div:2.2},
+  {sym:'TELE',name:'TeleCommunication Ltd.',sec:'Telecom',price:8.92,chg:-0.08,pct:-0.89,vol:9800000,mcap:9200000000,pe:0,div:0},
+  {sym:'HGFA',name:'Huffaz Seamless Pipe',sec:'Engineering',price:42.30,chg:0.56,pct:1.34,vol:3800000,mcap:8700000000,pe:11.2,div:3.8},
+  {sym:'LOADS',name:'Loads Limited',sec:'Automobile',price:78.45,chg:1.23,pct:1.59,vol:4200000,mcap:7800000000,pe:12.4,div:4.2},
+  {sym:'GHNL',name:'Gharibwal Cement (New)',sec:'Cement',price:71.20,chg:0.45,pct:0.64,vol:5600000,mcap:19800000000,pe:8.8,div:3.6},
+  {sym:'INIL2',name:'International Industries (B)',sec:'Steel',price:195.40,chg:-2.10,pct:-1.06,vol:1800000,mcap:12400000000,pe:7.6,div:5.8},
+  {sym:'AGHA',name:'Agha Steel Industries',sec:'Steel',price:28.76,chg:0.34,pct:1.20,vol:8400000,mcap:11200000000,pe:0,div:0},
+  {sym:'ASTM',name:'Artistic Milliners',sec:'Textile',price:38.90,chg:0.62,pct:1.62,vol:5200000,mcap:9800000000,pe:8.4,div:4.4},
+  {sym:'NCPL',name:'Nishat Chunian Power',sec:'Power',price:31.45,chg:0.28,pct:0.90,vol:6800000,mcap:12600000000,pe:7.2,div:8.4},
+  {sym:'KOHE',name:'Kohe-Noor Textile Mills',sec:'Textile',price:95.30,chg:-1.20,pct:-1.24,vol:2400000,mcap:8900000000,pe:9.6,div:3.8},
+  {sym:'GTYR',name:'General Tyre & Rubber',sec:'Automobile',price:142.60,chg:2.34,pct:1.67,vol:3200000,mcap:14200000000,pe:11.8,div:4.6},
+  {sym:'SITC',name:'Sitara Chemical Industries',sec:'Chemical',price:486.20,chg:3.45,pct:0.71,vol:980000,mcap:18700000000,pe:12.4,div:5.2},
+  {sym:'PMPK',name:'Philip Morris Pakistan',sec:'Tobacco',price:892.40,chg:-8.60,pct:-0.95,vol:420000,mcap:32400000000,pe:18.6,div:4.8},
+  {sym:'GADT',name:'Gadoon Textile Mills',sec:'Textile',price:312.80,chg:4.20,pct:1.36,vol:1800000,mcap:21400000000,pe:10.2,div:4.2},
+  {sym:'FHAM',name:'Faisal Spinning Mills',sec:'Textile',price:48.60,chg:0.78,pct:1.63,vol:3800000,mcap:7200000000,pe:8.8,div:3.6},
 ];
+
 const seen=new Set();
 const stocks=COMPANIES.filter(s=>{if(seen.has(s.sym))return false;seen.add(s.sym);return true;});
 const sectors=['All',...new Set(stocks.map(s=>s.sec).sort())];
@@ -1147,7 +1183,7 @@ function renderTradesPage(){
   document.getElementById('history-tbody').innerHTML=localPortfolio.history.slice(0,50).map(t=>`<tr>
     <td style="color:var(--text3)">${t.pkt}</td>
     <td class="sym-c">${t.sym}</td>
-    <td style="color:${t.action==='BUY'?'var(--green)':'var(--red)';};font-weight:700">${t.action}</td>
+    <td style="color:${t.action==='BUY'?'var(--green)':'var(--red)'};font-weight:700">${t.action}</td>
     <td>${t.qty.toLocaleString()}</td>
     <td>₨${fmt(t.price)}</td>
     <td>₨${fmt(t.total)}</td>
@@ -1306,7 +1342,6 @@ async function startStripeCheckout(){
     openAuth('signup');
     return;
   }
-  const sess=getSession();
   if(!sess){closePaywall();openAuth('signup');return;}
   // In production: call your backend → /api/stripe/create-checkout
   // The backend returns a Stripe checkout URL, we redirect there.
