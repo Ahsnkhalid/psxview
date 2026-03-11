@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PSXView — Pakistan Stock Market · Paper Trading Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#131722;--panel:#1e222d;--card2:#252d3d;
+  --border:#2a2e39;--border2:#363c4e;
+  --orange:#f0b429;--green:#26a69a;--red:#ef5350;--blue:#2962ff;
+  --text:#d1d4dc;--text2:#787b86;--text3:#434651;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12px;min-height:100vh;overflow-x:hidden;}
+
+/* ══ DISCLAIMER BAR ══ */
+#disclaimer-bar{
+  background:#0d1117;border-bottom:1px solid #1f2937;
+  padding:5px 14px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4b5563;letter-spacing:.3px;
+  text-align:center;
+}
+.disc-icon{color:#374151;font-size:10px;}
+.disc-highlight{color:#6b7280;font-weight:600;}
+
+/* ══ TOP BAR ══ */
+#topbar{height:44px;background:var(--panel);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;position:sticky;top:0;z-index:300;}
+.logo-block{display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1px solid var(--border);margin-right:12px;flex-shrink:0;}
+.logo-mark{display:flex;align-items:center;gap:1px;}
+.logo-p{width:22px;height:22px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px;color:#000;}
+.logo-sx{width:22px;height:22px;background:#1a3a5c;border:1px solid #2962ff;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px;color:#60a5fa;}
+.logo-label{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--text);margin-left:6px;}
+.logo-label span{color:var(--orange);}
+.logo-tag{font-family:'IBM Plex Sans',sans-serif;font-size:9px;color:var(--text3);margin-top:1px;white-space:nowrap;}
+.ticker-scroll{flex:1;overflow:hidden;position:relative;min-width:0;}
+.ticker-scroll::before,.ticker-scroll::after{content:'';position:absolute;top:0;bottom:0;width:28px;z-index:2;pointer-events:none;}
+.ticker-scroll::before{left:0;background:linear-gradient(90deg,var(--panel),transparent);}
+.ticker-scroll::after{right:0;background:linear-gradient(-90deg,var(--panel),transparent);}
+.ticker-track{display:flex;animation:ticker 70s linear infinite;white-space:nowrap;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tick-item{display:inline-flex;align-items:center;gap:5px;padding:0 12px;border-right:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;}
+.tick-sym{color:var(--orange);font-weight:600;}
+.tick-chg.up{color:var(--green);}.tick-chg.dn{color:var(--red);}
+.topbar-right{display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--border);margin-left:8px;flex-shrink:0;}
+.live-chip{display:flex;align-items:center;gap:4px;padding:2px 7px;border:1px solid rgba(38,166,154,.3);background:rgba(38,166,154,.06);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.4s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.live-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--green);letter-spacing:1px;}
+#clock-wrap{text-align:right;}
+#clock{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);}
+#clock-tz{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);letter-spacing:.5px;}
+
+/* ══ NAV ══ */
+#navbar{height:32px;background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:stretch;padding:0 10px;}
+.nav-btn{display:flex;align-items:center;gap:4px;padding:0 11px;background:none;border:none;
+  font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:500;color:var(--text2);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-btn:hover{color:var(--text);}
+.nav-btn.active{color:var(--orange);border-bottom-color:var(--orange);}
+.nav-btn .lock-icon{font-size:9px;opacity:.5;}
+.nav-spacer{flex:1;}
+#user-nav{display:flex;align-items:center;gap:6px;}
+.login-btn{padding:4px 14px;background:var(--blue);border:none;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:opacity .15s;}
+.login-btn:hover{opacity:.85;}
+.user-chip{display:flex;align-items:center;gap:6px;padding:3px 10px;background:none;border:1px solid var(--border);color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;transition:border-color .15s;}
+.user-chip:hover{border-color:var(--orange);color:var(--orange);}
+.uavatar{width:17px;height:17px;background:var(--orange);color:#000;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ══ TRIAL / EXPIRED BANNERS ══ */
+#trial-banner{background:linear-gradient(90deg,#0f1a06,#142008);border-bottom:1px solid #1e3a0a;
+  padding:5px 14px;display:flex;align-items:center;justify-content:space-between;display:none;}
+.trial-inner{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#7bc843;}
+.trial-pill{background:#1a3a0a;color:#a3e05a;padding:1px 7px;font-weight:700;font-size:9px;border:1px solid #2d5a14;}
+.trial-cta{background:var(--orange);color:#000;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;cursor:pointer;}
+.trial-cta:hover{opacity:.85;}
+#expired-banner{background:linear-gradient(90deg,#1a0808,#200f0f);border-bottom:1px solid #4a1414;
+  padding:6px 14px;display:flex;align-items:center;justify-content:space-between;display:none;}
+.expired-inner{font-family:'IBM Plex Mono',monospace;}
+.expired-title{font-size:11px;color:#f87171;font-weight:700;}
+.expired-sub{font-size:9px;color:#7a3030;margin-top:2px;}
+.expired-cta{background:var(--red);color:#fff;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:5px 16px;cursor:pointer;}
+.expired-cta:hover{opacity:.88;}
+
+/* ══ PAGES ══ */
+.page{display:none;}.page.active{display:block;}
+
+/* ══ CHART LAYOUT ══ */
+#app-layout{display:grid;grid-template-columns:268px 1fr 280px;height:calc(100vh - 115px);overflow:hidden;}
+#sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-head{padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg);}
+.sb-head input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 7px;outline:none;}
+.sb-head input:focus{border-color:var(--orange);}
+.sb-head input::placeholder{color:var(--text3);}
+.sector-pills{display:flex;padding:5px 7px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;gap:3px;}
+.sector-pills::-webkit-scrollbar{display:none;}
+.spill{padding:2px 7px;background:none;border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .1s;}
+.spill:hover{border-color:var(--orange);color:var(--orange);}
+.spill.active{background:var(--orange);color:#000;border-color:var(--orange);font-weight:700;}
+.stock-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.stock-list::-webkit-scrollbar{width:3px;}
+.stock-list::-webkit-scrollbar-thumb{background:var(--border2);}
+.sl-item{display:flex;align-items:center;padding:6px 9px;border-bottom:1px solid rgba(42,46,57,.4);cursor:pointer;transition:background .1s;}
+.sl-item:hover,.sl-item.active{background:rgba(240,180,41,.04);}
+.sl-item.active{border-left:2px solid var(--orange);}
+.sl-left{flex:1;min-width:0;}
+.sl-sym{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.sl-name{font-size:9px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sl-right{text-align:right;flex-shrink:0;}
+.sl-price{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);}
+.sl-chg{font-family:'IBM Plex Mono',monospace;font-size:9px;margin-top:1px;}
+.sl-chg.up{color:var(--green);}.sl-chg.dn{color:var(--red);}
+
+/* ══ CHART AREA ══ */
+#chart-area{display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+#stock-header{padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.sh-sym{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;}
+.sh-name{font-size:10px;color:var(--text2);}
+.sh-price{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:700;}
+.sh-chg{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;}
+.sh-chg.up{background:rgba(38,166,154,.12);color:var(--green);}
+.sh-chg.dn{background:rgba(239,83,80,.12);color:var(--red);}
+.sh-stats{display:flex;gap:14px;margin-left:auto;}
+.sh-stat-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.sh-stat-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);margin-top:1px;}
+#chart-toolbar{padding:5px 12px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:3px;}
+.tf-btn{padding:2px 7px;background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);cursor:pointer;border-radius:2px;transition:all .1s;}
+.tf-btn:hover{background:var(--card2);color:var(--text);}
+.tf-btn.active{background:var(--orange);color:#000;font-weight:700;}
+.tf-sep{width:1px;height:14px;background:var(--border);margin:0 5px;}
+.ct-btn{padding:2px 7px;background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);cursor:pointer;transition:all .1s;}
+.ct-btn:hover,.ct-btn.active{color:var(--orange);}
+#main-chart-wrap{flex:1;position:relative;min-height:0;}
+#mainChart{width:100%!important;height:100%!important;}
+#bottom-bar{padding:0;background:var(--border);display:grid;grid-template-columns:repeat(6,1fr);gap:1px;}
+.bb-cell{background:var(--panel);padding:5px 10px;}
+.bb-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.bb-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);margin-top:2px;}
+
+/* ══ TRADING PANEL (right side) ══ */
+#trade-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.tp-head{padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg);}
+.tp-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.5px;}
+.tp-sub{font-size:9px;color:var(--text3);margin-top:2px;}
+/* Lock screen */
+#trade-lock{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;gap:12px;}
+.lock-icon-big{font-size:32px;opacity:.4;}
+.lock-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--text2);}
+.lock-sub{font-size:10px;color:var(--text3);line-height:1.6;}
+.lock-btn{padding:8px 18px;background:var(--orange);border:none;color:#000;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;width:100%;}
+.lock-btn:hover{opacity:.88;}
+.lock-btn.secondary{background:none;border:1px solid var(--border);color:var(--text2);margin-top:4px;}
+.lock-btn.secondary:hover{border-color:var(--orange);color:var(--orange);}
+/* Trade form */
+#trade-form{flex:1;display:flex;flex-direction:column;overflow:hidden;display:none;}
+.bal-strip{padding:8px 12px;background:rgba(38,166,154,.05);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.bal-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;}
+.bal-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--green);}
+.order-form{padding:12px;}
+.order-tabs{display:grid;grid-template-columns:1fr 1fr;margin-bottom:10px;}
+.ot-btn{padding:7px;background:var(--card2);border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:all .1s;color:var(--text2);}
+.ot-btn.buy.active{background:rgba(38,166,154,.15);color:var(--green);border-color:var(--green);}
+.ot-btn.sell.active{background:rgba(239,83,80,.15);color:var(--red);border-color:var(--red);}
+.of-row{margin-bottom:9px;}
+.of-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;}
+.of-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 9px;outline:none;transition:border-color .15s;}
+.of-input:focus{border-color:var(--orange);}
+.of-total{background:var(--bg);border:1px solid var(--border2);padding:6px 9px;display:flex;justify-content:space-between;margin-bottom:10px;}
+.of-total-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;}
+.of-total-val{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.place-btn{width:100%;padding:10px;border:none;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:opacity .15s;}
+.place-btn:hover{opacity:.88;}
+.place-btn.buy{background:var(--green);color:#000;}
+.place-btn.sell{background:var(--red);color:#fff;}
+.order-msg{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:6px 8px;margin-top:8px;display:none;}
+.order-msg.show{display:block;}
+.order-msg.ok{color:var(--green);background:rgba(38,166,154,.08);border:1px solid rgba(38,166,154,.2);}
+.order-msg.err{color:var(--red);background:rgba(239,83,80,.08);border:1px solid rgba(239,83,80,.2);}
+/* Positions */
+.positions-area{border-top:1px solid var(--border);flex:1;overflow-y:auto;scrollbar-width:thin;}
+.pos-head{padding:6px 12px;background:var(--bg);border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.pos-reset{font-size:9px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:'IBM Plex Mono',monospace;}
+.pos-reset:hover{color:var(--red);}
+.pos-row{display:flex;align-items:center;padding:6px 12px;border-bottom:1px solid rgba(42,46,57,.4);cursor:pointer;transition:background .1s;}
+.pos-row:hover{background:rgba(240,180,41,.03);}
+.pos-sym{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--orange);width:54px;}
+.pos-qty{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2);flex:1;}
+.pos-pnl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-align:right;}
+.pos-pnl.up{color:var(--green);}.pos-pnl.dn{color:var(--red);}
+.no-pos{padding:16px 12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);}
+
+/* ══ MARKET PAGE ══ */
+#page-market .inner{padding:10px 14px;}
+.market-indices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.mcard{background:var(--panel);border:1px solid var(--border);padding:10px 12px;}
+.mcard-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;}
+.mcard-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;margin-top:3px;}
+.mcard-chg{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;margin-top:1px;}
+.market-panels{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mpanel{background:var(--panel);border:1px solid var(--border);}
+.mpanel-head{padding:6px 11px;border-bottom:1px solid var(--border);background:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;}
+.mr-row{display:flex;align-items:center;padding:5px 11px;border-bottom:1px solid rgba(42,46,57,.4);cursor:pointer;transition:background .1s;}
+.mr-row:hover{background:rgba(240,180,41,.03);}
+.mr-n{width:14px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);}
+.mr-sym{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--orange);width:52px;}
+.mr-name{flex:1;font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge{display:inline-block;padding:1px 5px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;}
+.badge.up{background:rgba(38,166,154,.12);color:var(--green);}
+.badge.dn{background:rgba(239,83,80,.12);color:var(--red);}
+
+/* ══ SCREENER PAGE ══ */
+#page-screener .inner{padding:10px 14px;}
+.sc-toolbar{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap;}
+.sc-toolbar select,.sc-toolbar input{background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 9px;outline:none;}
+.sc-toolbar select:focus,.sc-toolbar input:focus{border-color:var(--orange);}
+.sc-toolbar input::placeholder{color:var(--text3);}
+.sc-wrap{max-height:calc(100vh - 200px);overflow-y:auto;scrollbar-width:thin;border:1px solid var(--border);}
+.sc-table{width:100%;border-collapse:collapse;}
+.sc-table th{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;background:var(--bg);position:sticky;top:0;cursor:pointer;white-space:nowrap;}
+.sc-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)){text-align:right;}
+.sc-table td{padding:5px 9px;border-bottom:1px solid rgba(42,46,57,.4);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;}
+.sc-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)){text-align:right;}
+.sc-table tr:hover td{background:rgba(240,180,41,.02);}
+.sym-c{color:var(--orange);font-weight:700;}
+.name-c{font-family:'IBM Plex Sans',sans-serif;font-size:10px;color:var(--text2);}
+
+/* ══ DEMO TRADES PAGE ══ */
+#page-trades .inner{padding:10px 14px;max-width:900px;}
+.trades-lock{text-align:center;padding:60px 20px;}
+.trades-lock-icon{font-size:48px;margin-bottom:16px;}
+.trades-lock-title{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.trades-lock-sub{font-size:12px;color:var(--text2);line-height:1.7;max-width:480px;margin:0 auto 20px;}
+.trades-lock-btn{padding:12px 28px;background:var(--orange);border:none;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;margin:4px;}
+.trades-lock-btn:hover{opacity:.88;}
+.trades-lock-btn.secondary{background:none;border:1px solid var(--border);color:var(--text2);}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);padding:10px 12px;}
+.stat-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;margin-top:4px;}
+.stat-val.up{color:var(--green);}.stat-val.dn{color:var(--red);}.stat-val.neu{color:var(--text);}
+.section-head{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.trade-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);margin-bottom:14px;}
+.trade-table th{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);background:var(--bg);letter-spacing:.5px;text-transform:uppercase;}
+.trade-table td{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 10px;border-bottom:1px solid rgba(42,46,57,.4);}
+.disclaimer-box{background:rgba(41,98,255,.06);border:1px solid rgba(41,98,255,.2);padding:12px 14px;font-size:10px;color:#6b9be8;line-height:1.7;margin-top:8px;}
+.disclaimer-box strong{color:#93b4f0;font-family:'IBM Plex Mono',monospace;}
+
+/* ══ AUTH MODAL ══ */
+#auth-overlay{position:fixed;inset:0;z-index:999;background:rgba(10,12,18,.94);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+#auth-overlay.show{opacity:1;pointer-events:all;}
+.auth-box{background:var(--panel);border:1px solid var(--border);width:100%;max-width:380px;animation:slideUp .2s ease both;}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.auth-header{display:flex;align-items:stretch;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg);}
+.auth-tabs{display:flex;}
+.auth-tab{padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;letter-spacing:.3px;transition:all .15s;}
+.auth-tab.active{color:var(--orange);border-bottom-color:var(--orange);}
+.auth-close{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 12px;}
+.auth-close:hover{color:var(--text);}
+.auth-body{padding:20px;}
+.auth-headline{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.auth-sub{font-size:10px;color:var(--text3);margin-bottom:16px;line-height:1.5;}
+.field{margin-bottom:10px;}
+.field label{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;}
+.field input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 9px;outline:none;transition:border-color .15s;}
+.field input:focus{border-color:var(--orange);}
+.field input::placeholder{color:var(--text3);}
+.auth-submit{width:100%;background:var(--blue);border:none;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:10px;cursor:pointer;margin-top:4px;}
+.auth-submit:hover{opacity:.88;}
+.auth-msg{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:6px 8px;margin-bottom:10px;display:none;}
+.auth-msg.show{display:block;}
+.auth-msg.error{color:var(--red);background:rgba(239,83,80,.08);border:1px solid rgba(239,83,80,.2);}
+.auth-msg.success{color:var(--green);background:rgba(38,166,154,.08);border:1px solid rgba(38,166,154,.2);}
+.switch-link{text-align:center;font-size:10px;color:var(--text3);margin-top:10px;}
+.switch-link button{background:none;border:none;color:var(--orange);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;text-decoration:underline;}
+
+/* ══ PAYWALL ══ */
+#paywall-overlay{position:fixed;inset:0;z-index:998;background:rgba(10,12,18,.96);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;}
+#paywall-overlay.show{display:flex;}
+.pw-box{background:var(--panel);border:1px solid var(--border);width:100%;max-width:520px;animation:slideUp .25s ease both;overflow:hidden;}
+.pw-top{background:linear-gradient(135deg,#0f1520,#1a1f2e);padding:28px 28px 20px;border-bottom:1px solid var(--border);text-align:center;}
+.pw-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--orange);letter-spacing:2px;margin-bottom:10px;}
+.pw-title{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pw-desc{font-size:11px;color:var(--text2);line-height:1.6;}
+.pw-price-row{display:flex;align-items:baseline;justify-content:center;gap:3px;margin-top:14px;}
+.pw-amt{font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:700;color:var(--orange);}
+.pw-per{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text2);}
+.pw-trial-note{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#7bc843;margin-top:4px;}
+.pw-body{padding:20px 28px;}
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px;}
+.feat{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
+.feat::before{content:'✓';color:var(--green);font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:11px;flex-shrink:0;}
+.pw-cta{width:100%;background:var(--orange);border:none;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;padding:13px;cursor:pointer;letter-spacing:.5px;}
+.pw-cta:hover{opacity:.88;}
+.pw-secondary{width:100%;background:none;border:1px solid var(--border);color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:9px;cursor:pointer;margin-top:7px;}
+.pw-secondary:hover{border-color:var(--text2);}
+.pw-note{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);margin-top:9px;}
+.pw-disclaimer{background:rgba(41,98,255,.06);border:1px solid rgba(41,98,255,.15);padding:9px 12px;margin-top:12px;font-size:9px;color:#6b7280;line-height:1.6;text-align:center;}
+
+/* ══ DROPDOWN ══ */
+#user-dropdown{position:fixed;background:var(--panel);border:1px solid var(--border);z-index:600;min-width:200px;}
+.dd-item{padding:8px 13px;font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;transition:background .1s;}
+.dd-item:hover{background:rgba(240,180,41,.05);}
+.sub-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;padding:1px 5px;margin-left:4px;vertical-align:middle;}
+.sub-badge.trial{background:rgba(123,200,67,.12);color:#7bc843;border:1px solid #2d4a14;}
+.sub-badge.paid{background:rgba(38,166,154,.12);color:var(--green);border:1px solid rgba(38,166,154,.3);}
+.sub-badge.expired{background:rgba(239,83,80,.12);color:var(--red);border:1px solid rgba(239,83,80,.3);}
+
+@media(max-width:1100px){
+  #app-layout{grid-template-columns:240px 1fr 0;}
+  #trade-panel{display:none;}
+}
+@media(max-width:800px){
+  #app-layout{grid-template-columns:1fr;}
+  #sidebar{max-height:220px;}
+  .market-indices{grid-template-columns:1fr 1fr;}
+  .stats-bar{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- DISCLAIMER BAR -->
+<div id="disclaimer-bar">
+  <span class="disc-icon">⚠</span>
+  <span><span class="disc-highlight">PAPER TRADING SIMULATOR — FOR EDUCATIONAL PURPOSES ONLY.</span> &nbsp;All prices are simulated. No real money is involved. Past simulated performance does not indicate future real results. PSXView is not a licensed broker or investment advisor.</span>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="logo-block">
+    <div class="logo-mark">
+      <div class="logo-p">P</div>
+      <div class="logo-sx">SX</div>
+    </div>
+    <div>
+      <div class="logo-label"><span>PSX</span>View</div>
+      <div class="logo-tag">Pakistan Stock Market Simulator</div>
+    </div>
+  </div>
+  <div class="ticker-scroll"><div class="ticker-track" id="ticker-track"></div></div>
+  <div class="topbar-right">
+    <div class="live-chip"><div class="live-dot"></div><div class="live-lbl">SIMULATED</div></div>
+    <div id="clock-wrap">
+      <div id="clock">--:--:--</div>
+      <div id="clock-tz">PKT (UTC+5)</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div id="navbar">
+  <button class="nav-btn active" data-page="chart" onclick="showPage('chart',this)">📈 CHART</button>
+  <button class="nav-btn" data-page="market" onclick="showPage('market',this)">🏛 MARKET</button>
+  <button class="nav-btn" data-page="screener" onclick="showPage('screener',this)">🔍 SCREENER</button>
+  <button class="nav-btn" data-page="trades" onclick="showPage('trades',this)">💼 MY TRADES <span class="lock-icon" id="trades-lock-icon">🔒</span></button>
+  <div class="nav-spacer"></div>
+  <div id="user-nav"></div>
+</div>
+
+<!-- TRIAL BANNER -->
+<div id="trial-banner">
+  <div class="trial-inner">
+    <span>🕐 FREE TRIAL</span>
+    <span class="trial-pill" id="trial-days-pill">30 days left</span>
+    <span style="color:#4a6a2a">— Full access including paper trading</span>
+  </div>
+  <button class="trial-cta" onclick="openPaywall()">SUBSCRIBE — $10/mo →</button>
+</div>
+
+<!-- EXPIRED BANNER -->
+<div id="expired-banner">
+  <div class="expired-inner">
+    <div class="expired-title">⚠ Your 30-day trial has expired</div>
+    <div class="expired-sub">Subscribe to continue using PSXView Paper Trading</div>
+  </div>
+  <button class="expired-cta" onclick="openPaywall()">SUBSCRIBE NOW — $10/mo</button>
+</div>
+
+<!-- ═══ CHART PAGE ═══ -->
+<div class="page active" id="page-chart">
+<div id="app-layout">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sb-head">
+      <input type="text" id="sb-search" placeholder="Search symbol or company..." oninput="renderSidebar()"/>
+    </div>
+    <div class="sector-pills" id="sector-pills"></div>
+    <div class="stock-list" id="stock-list"></div>
+  </div>
+
+  <!-- CHART -->
+  <div id="chart-area">
+    <div id="stock-header">
+      <div>
+        <div class="sh-sym" id="sh-sym">OGDC</div>
+        <div class="sh-name" id="sh-name">Oil and Gas Development Company</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:7px;">
+        <div class="sh-price" id="sh-price">₨275.11</div>
+        <div class="sh-chg up" id="sh-chg">▲ +2.30 (+0.84%)</div>
+      </div>
+      <div class="sh-stats" id="sh-stats">
+        <div><div class="sh-stat-label">OPEN</div><div class="sh-stat-val" id="sh-open">—</div></div>
+        <div><div class="sh-stat-label">HIGH</div><div class="sh-stat-val" id="sh-high">—</div></div>
+        <div><div class="sh-stat-label">LOW</div><div class="sh-stat-val" id="sh-low">—</div></div>
+        <div><div class="sh-stat-label">VOL</div><div class="sh-stat-val" id="sh-vol">—</div></div>
+        <div><div class="sh-stat-label">MKT CAP</div><div class="sh-stat-val" id="sh-mcap">—</div></div>
+      </div>
+    </div>
+    <div id="chart-toolbar">
+      <button class="tf-btn active" onclick="setTF('1D',this)">1D</button>
+      <button class="tf-btn" onclick="setTF('1W',this)">1W</button>
+      <button class="tf-btn" onclick="setTF('1M',this)">1M</button>
+      <button class="tf-btn" onclick="setTF('3M',this)">3M</button>
+      <button class="tf-btn" onclick="setTF('6M',this)">6M</button>
+      <button class="tf-btn" onclick="setTF('1Y',this)">1Y</button>
+      <div class="tf-sep"></div>
+      <button class="ct-btn active" onclick="setChartType('line',this)">─ LINE</button>
+      <button class="ct-btn" onclick="setChartType('bar',this)">▌ AREA</button>
+    </div>
+    <div id="main-chart-wrap"><canvas id="mainChart"></canvas></div>
+    <div id="bottom-bar">
+      <div class="bb-cell"><div class="bb-label">52W HIGH</div><div class="bb-val" id="bb-h52">—</div></div>
+      <div class="bb-cell"><div class="bb-label">52W LOW</div><div class="bb-val" id="bb-l52">—</div></div>
+      <div class="bb-cell"><div class="bb-label">AVG VOL</div><div class="bb-val" id="bb-avgvol">—</div></div>
+      <div class="bb-cell"><div class="bb-label">SECTOR</div><div class="bb-val" id="bb-sector">—</div></div>
+      <div class="bb-cell"><div class="bb-label">P/E</div><div class="bb-val" id="bb-pe">—</div></div>
+      <div class="bb-cell"><div class="bb-label">DIV YIELD</div><div class="bb-val" id="bb-div">—</div></div>
+    </div>
+  </div>
+
+  <!-- TRADING PANEL -->
+  <div id="trade-panel">
+    <div class="tp-head">
+      <div class="tp-title">PAPER TRADING</div>
+      <div class="tp-sub">Simulated trades · No real money</div>
+    </div>
+
+    <!-- Lock state -->
+    <div id="trade-lock">
+      <div class="lock-icon-big">🔒</div>
+      <div class="lock-title">SUBSCRIPTION REQUIRED</div>
+      <div class="lock-sub">Paper trading is available to subscribers.<br>Start your 30-day free trial — no card required on signup.</div>
+      <button class="lock-btn" onclick="openPaywall()">START FREE TRIAL</button>
+      <button class="lock-btn secondary" onclick="openAuth('login')">Already a member? Sign in</button>
+    </div>
+
+    <!-- Trade form (shown when subscribed) -->
+    <div id="trade-form">
+      <div class="bal-strip">
+        <div class="bal-label">Virtual Balance</div>
+        <div class="bal-val" id="trade-balance">$100,000.00</div>
+      </div>
+      <div class="order-form">
+        <div class="order-tabs">
+          <button class="ot-btn buy active" id="ot-buy" onclick="setOrderSide('BUY')">BUY</button>
+          <button class="ot-btn sell" id="ot-sell" onclick="setOrderSide('SELL')">SELL</button>
+        </div>
+        <div class="of-row">
+          <div class="of-label">Symbol</div>
+          <input class="of-input" id="oi-symbol" value="OGDC" readonly style="color:var(--orange);cursor:default;"/>
+        </div>
+        <div class="of-row">
+          <div class="of-label">Price (₨)</div>
+          <input class="of-input" id="oi-price" type="number" min="0.01" step="0.01" oninput="updateOrderTotal()"/>
+        </div>
+        <div class="of-row">
+          <div class="of-label">Shares</div>
+          <input class="of-input" id="oi-qty" type="number" min="1" step="1" value="100" oninput="updateOrderTotal()"/>
+        </div>
+        <div class="of-total">
+          <span class="of-total-label">ORDER TOTAL</span>
+          <span class="of-total-val" id="oi-total">₨0.00</span>
+        </div>
+        <button class="place-btn buy" id="place-btn" onclick="placeOrder()">PLACE BUY ORDER</button>
+        <div class="order-msg" id="order-msg"></div>
+      </div>
+      <!-- Positions -->
+      <div class="positions-area">
+        <div class="pos-head">
+          <span>OPEN POSITIONS</span>
+          <button class="pos-reset" onclick="resetPortfolio()">Reset Portfolio</button>
+        </div>
+        <div id="positions-list"><div class="no-pos">No open positions yet</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ MARKET PAGE ═══ -->
+<div class="page" id="page-market">
+<div class="inner">
+  <div class="market-indices">
+    <div class="mcard"><div class="mcard-label">KSE-100</div><div class="mcard-val" id="m-kse100">78,432.60</div><div class="mcard-chg up">▲ +1,204.45 (+1.56%)</div></div>
+    <div class="mcard"><div class="mcard-label">KSE-30</div><div class="mcard-val">28,915.20</div><div class="mcard-chg up">▲ +382.10 (+1.34%)</div></div>
+    <div class="mcard"><div class="mcard-label">KMI-30</div><div class="mcard-val">41,204.80</div><div class="mcard-chg dn">▼ −118.40 (−0.29%)</div></div>
+  </div>
+  <div class="market-panels">
+    <div class="mpanel"><div class="mpanel-head">TOP GAINERS</div><div id="m-gainers"></div></div>
+    <div class="mpanel"><div class="mpanel-head">TOP LOSERS</div><div id="m-losers"></div></div>
+    <div class="mpanel"><div class="mpanel-head">MOST ACTIVE</div><div id="m-active"></div></div>
+    <div class="mpanel"><div class="mpanel-head">SECTOR PERFORMANCE</div><div id="m-sectors"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ SCREENER PAGE ═══ -->
+<div class="page" id="page-screener">
+<div class="inner">
+  <div class="sc-toolbar">
+    <input type="text" id="sc-search" placeholder="Search symbol or name..." oninput="renderScreener()" style="flex:1;min-width:140px;"/>
+    <select id="sc-sector" onchange="renderScreener()"><option value="">All Sectors</option></select>
+    <select id="sc-sort" onchange="renderScreener()">
+      <option value="mcap">Market Cap ↓</option>
+      <option value="price">Price ↓</option>
+      <option value="chg">% Change ↓</option>
+      <option value="vol">Volume ↓</option>
+      <option value="alpha">A → Z</option>
+    </select>
+  </div>
+  <div class="sc-wrap">
+    <table class="sc-table">
+      <thead><tr>
+        <th>#</th><th>SYMBOL</th><th>COMPANY</th>
+        <th onclick="scSort('price')">PRICE ₨</th>
+        <th onclick="scSort('chg')">CHG%</th>
+        <th onclick="scSort('mcap')">MKT CAP</th>
+        <th onclick="scSort('vol')">VOLUME</th>
+        <th>SECTOR</th>
+      </tr></thead>
+      <tbody id="sc-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ═══ TRADES PAGE ═══ -->
+<div class="page" id="page-trades">
+<div class="inner">
+  <!-- lock screen -->
+  <div id="trades-page-lock" class="trades-lock" style="display:none">
+    <div class="trades-lock-icon">💼</div>
+    <div class="trades-lock-title">PAPER TRADING — SUBSCRIBERS ONLY</div>
+    <div class="trades-lock-sub">
+      Demo trading lets you practice buying and selling PSX stocks with <strong>₨10,000,000 virtual rupees</strong> — completely risk-free.<br><br>
+      Subscribe to unlock paper trading, track your positions, and review your trade history.
+    </div>
+    <button class="trades-lock-btn" onclick="openPaywall()">🚀 START 30-DAY FREE TRIAL</button>
+    <button class="trades-lock-btn secondary" onclick="openAuth('login')">Sign In</button>
+    <div class="disclaimer-box" style="max-width:500px;margin:16px auto 0;">
+      <strong>DISCLAIMER:</strong> PSXView is an educational paper trading simulator. All prices are simulated and do not reflect real PSX data. No real money is ever involved. This platform is for learning purposes only and is not a licensed financial service.
+    </div>
+  </div>
+  <!-- trades content -->
+  <div id="trades-page-content" style="display:none">
+    <div class="stats-bar" id="trades-stats"></div>
+    <div class="section-head">OPEN POSITIONS</div>
+    <table class="trade-table" id="positions-table">
+      <thead><tr><th>SYMBOL</th><th>SHARES</th><th>AVG PRICE</th><th>CURRENT</th><th>MARKET VAL</th><th>P&amp;L</th><th>P&amp;L %</th></tr></thead>
+      <tbody id="positions-tbody"></tbody>
+    </table>
+    <div class="section-head">RECENT TRADES</div>
+    <table class="trade-table" id="history-table">
+      <thead><tr><th>TIME (PKT)</th><th>SYMBOL</th><th>ACTION</th><th>SHARES</th><th>PRICE</th><th>TOTAL</th></tr></thead>
+      <tbody id="history-tbody"></tbody>
+    </table>
+    <div class="disclaimer-box">
+      <strong>⚠ PAPER TRADING DISCLAIMER:</strong> All trades shown are simulated demo trades executed against synthetic price data. No real securities are bought or sold. PSXView is not registered with SECP or any financial regulatory authority. This platform is intended solely for educational and practice purposes. Never make real investment decisions based on simulated results.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-header">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">SIGN IN</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">CREATE ACCOUNT</button>
+      </div>
+      <button class="auth-close" onclick="closeAuth()">✕</button>
+    </div>
+    <div class="auth-body" id="panel-login">
+      <div class="auth-headline">SIGN IN TO PSXVIEW</div>
+      <div class="auth-sub">Access your paper trading account.</div>
+      <div class="auth-msg error" id="l-err"></div>
+      <div class="auth-msg success" id="l-ok"></div>
+      <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="auth-submit" onclick="doLogin()">SIGN IN →</button>
+      <div class="switch-link">No account? <button onclick="switchAuthTab('signup')">Create free account</button></div>
+    </div>
+    <div class="auth-body" id="panel-signup" style="display:none">
+      <div class="auth-headline">CREATE FREE ACCOUNT</div>
+      <div class="auth-sub">Includes 30-day free trial of paper trading. No credit card needed to sign up.</div>
+      <div class="auth-msg error" id="su-err"></div>
+      <div class="auth-msg success" id="su-ok"></div>
+      <div class="field"><label>Full Name</label><input type="text" id="su-name" placeholder="Your name"/></div>
+      <div class="field"><label>Email</label><input type="email" id="su-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="su-pass" placeholder="Min. 6 characters"/></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="su-pass2" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doSignup()"/></div>
+      <button class="auth-submit" onclick="doSignup()">START FREE TRIAL →</button>
+      <div class="switch-link">Already have an account? <button onclick="switchAuthTab('login')">Sign in</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYWALL -->
+<div id="paywall-overlay">
+  <div class="pw-box">
+    <div class="pw-top">
+      <div class="pw-logo">PSXView PRO</div>
+      <div class="pw-title">Unlock Paper Trading</div>
+      <div class="pw-desc">Practice trading all 120+ PSX-listed stocks with virtual money.<br>Learn how markets work — completely risk-free.</div>
+      <div class="pw-price-row"><div class="pw-amt">$10</div><div class="pw-per">/month</div></div>
+      <div class="pw-trial-note">✓ 30-day free trial included with new accounts</div>
+    </div>
+    <div class="pw-body">
+      <div class="features-grid">
+        <div class="feat">Live simulated PSX prices</div>
+        <div class="feat">120+ listed companies</div>
+        <div class="feat">Paper buy &amp; sell orders</div>
+        <div class="feat">Portfolio P&amp;L tracking</div>
+        <div class="feat">Full trade history</div>
+        <div class="feat">Advanced chart tools</div>
+        <div class="feat">Market screener</div>
+        <div class="feat">Cancel anytime</div>
+      </div>
+      <button class="pw-cta" onclick="startStripeCheckout()">💳 &nbsp;SUBSCRIBE — $10/month</button>
+      <button class="pw-secondary" onclick="closePaywall()">Maybe later</button>
+      <div class="pw-note">🔒 Secure payment via Stripe &nbsp;·&nbsp; Cancel anytime from your account</div>
+      <div class="pw-disclaimer">
+        <strong>EDUCATIONAL PLATFORM ONLY.</strong> PSXView provides paper (simulated) trading for learning purposes. No real money or real securities are involved. Not a licensed broker or investment advisor.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   PSX COMPANIES DATA
+════════════════════════════════════════════ */
+const COMPANIES=[
+  {sym:'OGDC',name:'Oil & Gas Development Co.',sec:'Energy',price:275.11,chg:2.30,pct:0.84,vol:18500000,mcap:1170000000000,pe:6.2,div:8.1},
+  {sym:'UBL',name:'United Bank Limited',sec:'Banking',price:379.66,chg:2.14,pct:0.57,vol:9800000,mcap:945350000000,pe:8.4,div:7.2},
+  {sym:'MARI',name:'Mari Energies Limited',sec:'Energy',price:707.38,chg:2.47,pct:0.35,vol:3200000,mcap:849300000000,pe:9.1,div:4.2},
+  {sym:'FFC',name:'Fauji Fertilizer Co.',sec:'Fertilizer',price:584.94,chg:12.77,pct:2.23,vol:7600000,mcap:832430000000,pe:7.8,div:11.2},
+  {sym:'MEBL',name:'Meezan Bank Limited',sec:'Banking',price:431.80,chg:0.78,pct:0.18,vol:6100000,mcap:776080000000,pe:11.2,div:5.1},
+  {sym:'LUCK',name:'Lucky Cement Limited',sec:'Cement',price:488.82,chg:1.56,pct:0.32,vol:3100000,mcap:716120000000,pe:12.4,div:3.8},
+  {sym:'PPL',name:'Pakistan Petroleum Ltd.',sec:'Energy',price:220.27,chg:3.24,pct:1.49,vol:12300000,mcap:599350000000,pe:5.8,div:9.4},
+  {sym:'NBP',name:'National Bank of Pakistan',sec:'Banking',price:217.69,chg:0.93,pct:0.43,vol:22100000,mcap:463140000000,pe:4.1,div:12.2},
+  {sym:'HBL',name:'Habib Bank Limited',sec:'Banking',price:311.35,chg:1.12,pct:0.36,vol:9800000,mcap:455090000000,pe:7.6,div:6.8},
+  {sym:'MCB',name:'MCB Bank Limited',sec:'Banking',price:367.97,chg:10.62,pct:2.97,vol:7200000,mcap:436070000000,pe:8.9,div:8.4},
+  {sym:'PAKT',name:'Pakistan Tobacco Co.',sec:'Tobacco',price:1497.28,chg:-13.28,pct:-0.88,vol:890000,mcap:382550000000,pe:14.2,div:5.6},
+  {sym:'NESTLE',name:'Nestlé Pakistan Ltd.',sec:'Food',price:8000.00,chg:0,pct:0,vol:120000,mcap:362800000000,pe:32.1,div:2.1},
+  {sym:'BWCL',name:'Bestway Cement Limited',sec:'Cement',price:545.02,chg:0.71,pct:0.13,vol:2800000,mcap:324950000000,pe:8.2,div:4.4},
+  {sym:'FATIMA',name:'Fatima Fertilizer Co.',sec:'Fertilizer',price:149.83,chg:0.03,pct:0.02,vol:10200000,mcap:314580000000,pe:6.4,div:10.8},
+  {sym:'COLG',name:'Colgate-Palmolive Pakistan',sec:'Consumer',price:1280.01,chg:1.41,pct:0.11,vol:480000,mcap:310750000000,pe:28.4,div:2.8},
+  {sym:'EFERT',name:'Engro Fertilizers Ltd.',sec:'Fertilizer',price:219.43,chg:3.45,pct:1.60,vol:8900000,mcap:293000000000,pe:7.2,div:9.6},
+  {sym:'HUBC',name:'The Hub Power Company',sec:'Power',price:224.57,chg:2.34,pct:1.05,vol:5400000,mcap:288270000000,pe:9.8,div:7.4},
+  {sym:'ENGROH',name:'Engro Holding Limited',sec:'Holding',price:216.41,chg:-1.17,pct:-0.54,vol:6700000,mcap:262020000000,pe:8.6,div:5.2},
+  {sym:'SCBPL',name:'Standard Chartered Pak.',sec:'Banking',price:67.50,chg:0.25,pct:0.37,vol:4100000,mcap:261330000000,pe:10.4,div:4.8},
+  {sym:'SYS',name:'Systems Limited',sec:'Technology',price:164.85,chg:3.86,pct:2.39,vol:3200000,mcap:242800000000,pe:24.6,div:1.2},
+  {sym:'PTC',name:'Pakistan Telecom. Co.',sec:'Telecom',price:45.86,chg:-0.30,pct:-0.65,vol:18400000,mcap:235420000000,pe:7.8,div:6.2},
+  {sym:'PSO',name:'Pakistan State Oil Co.',sec:'Energy',price:469.36,chg:1.50,pct:0.32,vol:8900000,mcap:219650000000,pe:5.1,div:11.4},
+  {sym:'ABL',name:'Allied Bank Limited',sec:'Banking',price:181.87,chg:-0.86,pct:-0.47,vol:5600000,mcap:209240000000,pe:6.8,div:7.8},
+  {sym:'BAHL',name:'Bank AL Habib Limited',sec:'Banking',price:184.59,chg:1.08,pct:0.59,vol:4800000,mcap:205160000000,pe:7.4,div:6.4},
+  {sym:'ATLH',name:'Atlas Honda Limited',sec:'Automobile',price:1430.04,chg:-2.86,pct:-0.20,vol:1200000,mcap:177800000000,pe:14.8,div:4.2},
+  {sym:'POL',name:'Pakistan Oilfields Ltd.',sec:'Energy',price:619.52,chg:2.54,pct:0.41,vol:2400000,mcap:175850000000,pe:7.6,div:10.2},
+  {sym:'BAFL',name:'Bank Alfalah Limited',sec:'Banking',price:104.89,chg:0.16,pct:0.15,vol:7800000,mcap:165430000000,pe:6.2,div:8.6},
+  {sym:'KEL',name:'K-Electric Limited',sec:'Power',price:5.62,chg:-0.05,pct:-0.88,vol:42000000,mcap:156580000000,pe:0,div:0},
+  {sym:'INDU',name:'Indus Motor Company',sec:'Automobile',price:1977.02,chg:9.84,pct:0.50,vol:980000,mcap:154630000000,pe:18.4,div:3.6},
+  {sym:'FCCL',name:'Fauji Cement Company',sec:'Cement',price:57.47,chg:1.34,pct:2.39,vol:11200000,mcap:137680000000,pe:7.4,div:5.2},
+  {sym:'AKBL',name:'Askari Bank Limited',sec:'Banking',price:94.24,chg:-0.60,pct:-0.63,vol:6200000,mcap:136580000000,pe:5.8,div:9.2},
+  {sym:'FABL',name:'Faysal Bank Limited',sec:'Banking',price:89.68,chg:0.42,pct:0.47,vol:5800000,mcap:135470000000,pe:6.4,div:7.6},
+  {sym:'MLCF',name:'Maple Leaf Cement Factory',sec:'Cement',price:123.34,chg:3.82,pct:3.19,vol:15600000,mcap:125220000000,pe:9.2,div:3.8},
+  {sym:'GLAXO',name:'GlaxoSmithKline Pakistan',sec:'Pharma',price:390.50,chg:0.04,pct:0.01,vol:1800000,mcap:124350000000,pe:22.6,div:2.4},
+  {sym:'HMB',name:'Habib Metropolitan Bank',sec:'Banking',price:112.00,chg:0,pct:0,vol:3200000,mcap:117360000000,pe:6.8,div:8.2},
+  {sym:'BOP',name:'The Bank of Punjab',sec:'Banking',price:35.25,chg:0.29,pct:0.83,vol:18400000,mcap:114370000000,pe:4.2,div:10.4},
+  {sym:'ILP',name:'Interloop Limited',sec:'Textile',price:78.09,chg:-0.59,pct:-0.75,vol:9200000,mcap:109460000000,pe:11.4,div:3.2},
+  {sym:'DGKC',name:'D.G. Khan Cement Co.',sec:'Cement',price:242.04,chg:-1.73,pct:-0.71,vol:4400000,mcap:106800000000,pe:8.8,div:4.6},
+  {sym:'MTL',name:'Millat Tractors Limited',sec:'Automobile',price:509.19,chg:1.42,pct:0.28,vol:1800000,mcap:101310000000,pe:12.2,div:5.8},
+  {sym:'ABOT',name:'Abbott Laboratories Pak.',sec:'Pharma',price:1023.58,chg:5.42,pct:0.53,vol:680000,mcap:100210000000,pe:26.4,div:1.8},
+  {sym:'KOHC',name:'Kohat Cement Company',sec:'Cement',price:104.14,chg:-4.39,pct:-4.05,vol:6800000,mcap:96310000000,pe:7.6,div:5.4},
+  {sym:'PIOC',name:'Pioneer Cement Limited',sec:'Cement',price:412.14,chg:3.36,pct:0.82,vol:2200000,mcap:92860000000,pe:10.4,div:3.4},
+  {sym:'NATF',name:'National Foods Limited',sec:'Food',price:390.94,chg:-1.06,pct:-0.27,vol:1800000,mcap:91130000000,pe:18.6,div:2.6},
+  {sym:'PNSC',name:'Pakistan National Shipping',sec:'Transport',price:447.86,chg:-8.80,pct:-1.93,vol:2100000,mcap:88660000000,pe:8.4,div:6.8},
+  {sym:'SNGP',name:'Sui Northern Gas Pipelines',sec:'Energy',price:118.05,chg:0.65,pct:0.55,vol:6800000,mcap:74870000000,pe:5.2,div:8.4},
+  {sym:'ATRL',name:'Attock Refinery Limited',sec:'Energy',price:657.38,chg:-3.56,pct:-0.54,vol:1400000,mcap:70380000000,pe:6.8,div:7.2},
+  {sym:'CHCC',name:'Cherat Cement Company',sec:'Cement',price:346.84,chg:-6.48,pct:-1.83,vol:1900000,mcap:69910000000,pe:9.4,div:4.2},
+  {sym:'AIRLINK',name:'Air Link Communication',sec:'Technology',price:173.19,chg:1.60,pct:0.93,vol:8200000,mcap:67830000000,pe:16.8,div:2.4},
+  {sym:'APL',name:'Attock Petroleum Limited',sec:'Energy',price:556.79,chg:0.45,pct:0.08,vol:2100000,mcap:66440000000,pe:5.4,div:9.6},
+  {sym:'NML',name:'Nishat Mills Limited',sec:'Textile',price:186.26,chg:9.57,pct:5.40,vol:6400000,mcap:65490000000,pe:8.6,div:4.8},
+  {sym:'SEARL',name:'The Searle Company',sec:'Pharma',price:106.44,chg:0.59,pct:0.56,vol:3800000,mcap:62610000000,pe:19.4,div:2.2},
+  {sym:'AGP',name:'AGP Limited',sec:'Pharma',price:190.59,chg:0.72,pct:0.38,vol:2400000,mcap:53160000000,pe:21.6,div:1.8},
+  {sym:'PAEL',name:'Pak Elektron Limited',sec:'Engineering',price:54.67,chg:-0.29,pct:-0.53,vol:9800000,mcap:50760000000,pe:12.8,div:2.4},
+  {sym:'ISL',name:'International Steels Ltd.',sec:'Steel',price:111.65,chg:0.28,pct:0.25,vol:4200000,mcap:48570000000,pe:8.4,div:5.6},
+  {sym:'JDWS',name:'JDW Sugar Mills Limited',sec:'Sugar',price:844.37,chg:12.30,pct:1.48,vol:1100000,mcap:48080000000,pe:9.2,div:4.4},
+  {sym:'SSGC',name:'Sui Southern Gas Company',sec:'Energy',price:41.39,chg:-1.06,pct:-2.50,vol:12400000,mcap:36460000000,pe:4.8,div:7.6},
+  {sym:'EPCL',name:'Engro Polymer & Chemicals',sec:'Chemical',price:38.58,chg:0.66,pct:1.74,vol:7800000,mcap:34470000000,pe:11.2,div:3.8},
+  {sym:'NRL',name:'National Refinery Limited',sec:'Energy',price:422.73,chg:5.42,pct:1.30,vol:1800000,mcap:33370000000,pe:6.2,div:8.4},
+  {sym:'SHFA',name:'Shifa International Hospitals',sec:'Healthcare',price:515.00,chg:-6.40,pct:-1.23,vol:980000,mcap:32960000000,pe:18.4,div:2.2},
+  {sym:'MUGHAL',name:'Mughal Iron & Steel',sec:'Steel',price:88.39,chg:-1.62,pct:-1.80,vol:6800000,mcap:32590000000,pe:7.8,div:5.2},
+  {sym:'KAPCO',name:'Kot Addu Power Company',sec:'Power',price:36.41,chg:1.32,pct:3.76,vol:8400000,mcap:32050000000,pe:8.4,div:12.4},
+  {sym:'BIPL',name:'BankIslami Pakistan Ltd.',sec:'Banking',price:33.90,chg:-0.57,pct:-1.65,vol:7800000,mcap:37590000000,pe:5.6,div:6.8},
+  {sym:'BOK',name:'The Bank of Khyber',sec:'Banking',price:32.96,chg:0.61,pct:1.89,vol:6200000,mcap:37460000000,pe:4.8,div:8.2},
+  {sym:'AICL',name:'Adamjee Insurance Co.',sec:'Insurance',price:80.11,chg:-0.93,pct:-1.15,vol:3200000,mcap:28360000000,pe:12.4,div:4.2},
+  {sym:'SNBL',name:'Soneri Bank Limited',sec:'Banking',price:25.70,chg:0.31,pct:1.22,vol:8400000,mcap:28200000000,pe:5.2,div:9.4},
+  {sym:'PIBTL',name:'Pakistan Intl Bulk Terminal',sec:'Transport',price:15.63,chg:0.16,pct:1.03,vol:12400000,mcap:27630000000,pe:8.6,div:5.8},
+  {sym:'UNITY',name:'Unity Foods Limited',sec:'Food',price:22.01,chg:-0.18,pct:-0.81,vol:14200000,mcap:26280000000,pe:9.8,div:3.6},
+  {sym:'GWLC',name:'Gharibwal Cement Limited',sec:'Cement',price:63.10,chg:0.34,pct:0.54,vol:6800000,mcap:25260000000,pe:7.4,div:5.6},
+  {sym:'INIL',name:'International Industries',sec:'Steel',price:190.94,chg:-11.64,pct:-5.76,vol:4200000,mcap:25180000000,pe:8.2,div:6.4},
+  {sym:'POWER',name:'Power Cement Limited',sec:'Cement',price:19.05,chg:0.06,pct:0.32,vol:14600000,mcap:24610000000,pe:11.4,div:3.2},
+  {sym:'EFUG',name:'EFU General Insurance',sec:'Insurance',price:119.87,chg:-0.72,pct:-0.60,vol:1800000,mcap:23700000000,pe:10.8,div:4.8},
+  {sym:'AGTL',name:'Al-Ghazi Tractors Limited',sec:'Automobile',price:408.49,chg:2.04,pct:0.50,vol:980000,mcap:23560000000,pe:11.4,div:5.4},
+  {sym:'PRL',name:'Pakistan Refinery Limited',sec:'Energy',price:36.71,chg:-0.46,pct:-1.24,vol:8400000,mcap:23420000000,pe:7.2,div:6.8},
+  {sym:'GATM',name:'Gul Ahmed Textile Mills',sec:'Textile',price:28.39,chg:-0.24,pct:-0.84,vol:9800000,mcap:21010000000,pe:7.8,div:4.2},
+  {sym:'JKSM',name:'J.K. Spinning Mills',sec:'Textile',price:209.86,chg:9.85,pct:4.93,vol:2400000,mcap:20460000000,pe:10.4,div:3.8},
+  {sym:'DCR',name:'Dolmen City REIT',sec:'Real Estate',price:35.52,chg:0.08,pct:0.23,vol:4200000,mcap:78990000000,pe:14.2,div:6.8},
+  {sym:'LOTCHEM',name:'Lotte Chemical Pakistan',sec:'Chemical',price:29.78,chg:0.03,pct:0.10,vol:6800000,mcap:45090000000,pe:0,div:0},
+  {sym:'THALL',name:'Thal Limited',sec:'Engineering',price:530.03,chg:-9.45,pct:-1.75,vol:1400000,mcap:42950000000,pe:12.6,div:3.8},
+  {sym:'CNERGY',name:'Cnergyico PK Limited',sec:'Energy',price:7.72,chg:-0.07,pct:-0.90,vol:32000000,mcap:42520000000,pe:0,div:0},
+  {sym:'AGL',name:'Agritech Limited',sec:'Fertilizer',price:68.41,chg:-0.49,pct:-0.71,vol:5200000,mcap:41280000000,pe:0,div:0},
+  {sym:'HCAR',name:'Honda Atlas Cars Pakistan',sec:'Automobile',price:281.02,chg:0.31,pct:0.11,vol:2800000,mcap:40090000000,pe:14.8,div:3.2},
+  {sym:'FLYNG',name:'Flying Cement Company',sec:'Cement',price:54.74,chg:0.03,pct:0.06,vol:6400000,mcap:38030000000,pe:12.2,div:2.8},
+  {sym:'GHGL',name:'Ghani Glass Limited',sec:'Glass',price:37.68,chg:0.35,pct:0.94,vol:7800000,mcap:37320000000,pe:11.4,div:3.6},
+  {sym:'TGL',name:'Tariq Glass Industries',sec:'Glass',price:214.40,chg:-0.32,pct:-0.15,vol:2400000,mcap:36910000000,pe:12.8,div:3.2},
+  {sym:'DLL',name:'Dawood Lawrencepur Ltd.',sec:'Engineering',price:618.87,chg:-16.60,pct:-2.62,vol:980000,mcap:36700000000,pe:0,div:0},
+  {sym:'THCCL',name:'Thatta Cement Company',sec:'Cement',price:89.28,chg:1.81,pct:2.07,vol:3800000,mcap:37050000000,pe:8.6,div:4.8},
+  {sym:'GHNI',name:'Ghandhara Industries',sec:'Automobile',price:822.97,chg:-8.58,pct:-1.03,vol:680000,mcap:35070000000,pe:14.2,div:3.4},
+  {sym:'GAL',name:'Ghandhara Automobiles',sec:'Automobile',price:551.06,chg:0.17,pct:0.03,vol:780000,mcap:31470000000,pe:12.8,div:3.8},
+  {sym:'WAFI',name:'Wafi Energy Pakistan',sec:'Energy',price:212.91,chg:0.96,pct:0.45,vol:3200000,mcap:45570000000,pe:6.4,div:7.8},
+  {sym:'SAZEW',name:'Sazgar Engineering Works',sec:'Automobile',price:1668.97,chg:-4.54,pct:-0.27,vol:980000,mcap:100880000000,pe:14.6,div:3.4},
+  {sym:'LCI',name:'Lucky Core Industries',sec:'Chemical',price:293.33,chg:0.21,pct:0.07,vol:2800000,mcap:135370000000,pe:11.2,div:4.2},
+  {sym:'ISIL',name:'Ismail Industries Limited',sec:'Food',price:1975.00,chg:5.93,pct:0.30,vol:480000,mcap:130670000000,pe:16.8,div:2.8},
+  {sym:'HALEON',name:'Haleon Pakistan Limited',sec:'Consumer',price:824.14,chg:-15.97,pct:-1.90,vol:880000,mcap:96470000000,pe:22.4,div:2.2},
+  {sym:'RMPL',name:'Rafhan Maize Products',sec:'Food',price:9329.01,chg:6.33,pct:0.07,vol:68000,mcap:86100000000,pe:24.6,div:2.4},
+  {sym:'PSX',name:'Pakistan Stock Exchange',sec:'Financial',price:45.64,chg:0.12,pct:0.26,vol:3200000,mcap:36480000000,pe:14.6,div:5.2},
+  {sym:'PKGP',name:'Pakgen Power Limited',sec:'Power',price:59.84,chg:0.92,pct:1.56,vol:4800000,mcap:22270000000,pe:8.8,div:8.4},
+  {sym:'JSCL',name:'Jahangir Siddiqui & Co.',sec:'Financial',price:26.57,chg:0.57,pct:2.19,vol:6800000,mcap:23810000000,pe:7.8,div:5.4},
+  {sym:'MUREB',name:'Murree Brewery Company',sec:'Beverage',price:1050.00,chg:-0.21,pct:-0.02,vol:280000,mcap:29050000000,pe:16.4,div:3.2},
+  {sym:'FML',name:'Feroze1888 Mills Limited',sec:'Textile',price:71.75,chg:0.80,pct:1.13,vol:5800000,mcap:28000000000,pe:9.6,div:4.6},
+  {sym:'FFL',name:'Fauji Foods Limited',sec:'Food',price:19.75,chg:-0.18,pct:-0.90,vol:8400000,mcap:50220000000,pe:0,div:0},
+  {sym:'PIAHCLA',name:'PIA Holding Company (A)',sec:'Transport',price:44.20,chg:-0.46,pct:-1.03,vol:14200000,mcap:267630000000,pe:0,div:0},
+  {sym:'UPFL',name:'Unilever Pakistan Foods',sec:'Food',price:28863.2,chg:152.8,pct:0.53,vol:18000,mcap:182880000000,pe:28.4,div:2.4},
+  {sym:'FCEPL',name:'FrieslandCampina Engro Pak.',sec:'Food',price:86.73,chg:-1.25,pct:-1.42,vol:4800000,mcap:66490000000,pe:12.8,div:3.2},
+  {sym:'SGF',name:'Service Global Footwear',sec:'Consumer',price:114.02,chg:1.94,pct:1.73,vol:4200000,mcap:23540000000,pe:10.4,div:4.8},
+];
+const seen=new Set();
+const stocks=COMPANIES.filter(s=>{if(seen.has(s.sym))return false;seen.add(s.sym);return true;});
+const sectors=['All',...new Set(stocks.map(s=>s.sec).sort())];
+
+/* ════ STATE ════ */
+let selectedSym='OGDC';
+let selectedSector='All';
+let currentTF='1D';
+let chartType='line';
+let orderSide='BUY';
+let mainChart=null;
+let scSortKey='mcap';
+// local portfolio mirror (synced to server when online)
+let localPortfolio={balance:10000000,positions:{},history:[]}; // ₨10M virtual
+
+/* ════ UTILS ════ */
+const fmt=n=>n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtB=n=>n>=1e12?(n/1e12).toFixed(2)+'T':n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':''+n;
+const fmtV=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':''+n;
+const sign=n=>n>=0?'+':'';
+
+/* ════ PKT CLOCK ════ */
+function tickClock(){
+  const now=new Date();
+  const pkt=new Intl.DateTimeFormat('en-PK',{
+    timeZone:'Asia/Karachi',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+  }).format(now);
+  document.getElementById('clock').textContent=pkt;
+}
+setInterval(tickClock,1000);tickClock();
+
+/* ════ CHART DATA ════ */
+function genChartData(sym,tf){
+  const s=stocks.find(x=>x.sym===sym)||stocks[0];
+  const base=s.price;
+  const cfg={
+    '1D':{n:13,range:base*.03},
+    '1W':{n:5,range:base*.05},
+    '1M':{n:22,range:base*.08},
+    '3M':{n:66,range:base*.12},
+    '6M':{n:130,range:base*.18},
+    '1Y':{n:252,range:base*.25},
+  }[tf]||{n:13,range:base*.03};
+  const labels1D=['09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30'];
+  const labels=tf==='1D'?labels1D:Array.from({length:cfg.n},(_,i)=>`${i+1}`);
+  let v=base-(s.chg||0);const data=[];
+  for(let i=0;i<cfg.n;i++){v+=((Math.random()-.46)*(cfg.range/cfg.n*2));v=Math.max(base*.5,v);data.push(+v.toFixed(2));}
+  data[data.length-1]=+base.toFixed(2);
+  return{labels,data};
+}
+
+/* ════ TICKER ════ */
+function buildTicker(){
+  const t=stocks.slice(0,30).map(s=>`<div class="tick-item"><span class="tick-sym">${s.sym}</span><span>₨${fmt(s.price)}</span><span class="tick-chg ${s.chg>=0?'up':'dn'}">${s.chg>=0?'▲':'▼'} ${Math.abs(s.pct).toFixed(2)}%</span></div>`).join('');
+  document.getElementById('ticker-track').innerHTML=t+t;
+}
+
+/* ════ SIDEBAR ════ */
+function buildSectorPills(){
+  const c=document.getElementById('sector-pills');
+  c.innerHTML=sectors.map(s=>`<button class="spill ${s==='All'?'active':''}" onclick="setSector('${s}',this)">${s}</button>`).join('');
+}
+function setSector(s,btn){selectedSector=s;document.querySelectorAll('.spill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderSidebar();}
+function renderSidebar(){
+  const q=(document.getElementById('sb-search')?.value||'').toLowerCase();
+  const list=stocks.filter(s=>(selectedSector==='All'||s.sec===selectedSector)&&(!q||s.sym.toLowerCase().includes(q)||s.name.toLowerCase().includes(q)));
+  document.getElementById('stock-list').innerHTML=list.map(s=>`
+    <div class="sl-item ${s.sym===selectedSym?'active':''}" onclick="selectStock('${s.sym}')">
+      <div class="sl-left"><div class="sl-sym">${s.sym}</div><div class="sl-name">${s.name}</div></div>
+      <div class="sl-right"><div class="sl-price">₨${fmt(s.price)}</div><div class="sl-chg ${s.chg>=0?'up':'dn'}">${s.chg>=0?'▲':'▼'} ${Math.abs(s.pct).toFixed(2)}%</div></div>
+    </div>`).join('');
+}
+
+/* ════ SELECT STOCK ════ */
+function selectStock(sym){
+  selectedSym=sym;
+  const s=stocks.find(x=>x.sym===sym)||stocks[0];
+  const up=s.chg>=0;
+  document.getElementById('sh-sym').textContent=s.sym;
+  document.getElementById('sh-name').textContent=s.name;
+  document.getElementById('sh-price').textContent='₨'+fmt(s.price);
+  document.getElementById('sh-price').className='sh-price '+(up?'up':'dn');
+  document.getElementById('sh-chg').textContent=(up?'▲ +':'▼ ')+fmt(Math.abs(s.chg))+' ('+(up?'+':'')+s.pct.toFixed(2)+'%)';
+  document.getElementById('sh-chg').className='sh-chg '+(up?'up':'dn');
+  document.getElementById('sh-open').textContent='₨'+(s.price-(s.chg||0)*1.1).toFixed(2);
+  document.getElementById('sh-high').textContent='₨'+(s.price+Math.abs(s.chg)*.6).toFixed(2);
+  document.getElementById('sh-low').textContent='₨'+(s.price-Math.abs(s.chg)*.8).toFixed(2);
+  document.getElementById('sh-vol').textContent=fmtV(s.vol);
+  document.getElementById('sh-mcap').textContent=fmtB(s.mcap);
+  document.getElementById('bb-h52').textContent='₨'+(s.price*1.22).toFixed(2);
+  document.getElementById('bb-l52').textContent='₨'+(s.price*.68).toFixed(2);
+  document.getElementById('bb-avgvol').textContent=fmtV(Math.round(s.vol*1.12));
+  document.getElementById('bb-sector').textContent=s.sec;
+  document.getElementById('bb-pe').textContent=s.pe>0?s.pe.toFixed(1)+'x':'N/A';
+  document.getElementById('bb-div').textContent=s.div>0?s.div.toFixed(1)+'%':'N/A';
+  // update order panel
+  const oi=document.getElementById('oi-symbol');if(oi)oi.value=sym;
+  const op=document.getElementById('oi-price');if(op){op.value=s.price.toFixed(2);updateOrderTotal();}
+  renderSidebar();
+  renderMainChart();
+}
+
+/* ════ CHART ════ */
+function renderMainChart(){
+  const wrap=document.getElementById('main-chart-wrap');
+  const canvas=document.getElementById('mainChart');
+  if(!canvas||!wrap.clientHeight)return;
+  const ctx=canvas.getContext('2d');
+  if(mainChart){mainChart.destroy();}
+  const{labels,data}=genChartData(selectedSym,currentTF);
+  const s=stocks.find(x=>x.sym===selectedSym)||stocks[0];
+  const up=s.chg>=0;const col=up?'#26a69a':'#ef5350';
+  const grad=ctx.createLinearGradient(0,0,0,wrap.clientHeight||300);
+  grad.addColorStop(0,up?'rgba(38,166,154,.22)':'rgba(239,83,80,.22)');
+  grad.addColorStop(1,'transparent');
+  const ds=chartType==='line'?[{data,borderColor:col,borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.2,fill:true,backgroundColor:grad}]
+    :[{data,backgroundColor:data.map((_,i)=>i===0||data[i]>=data[i-1]?'rgba(38,166,154,.65)':'rgba(239,83,80,.65)'),borderColor:'transparent',borderWidth:0}];
+  mainChart=new Chart(ctx,{
+    type:chartType==='bar'?'bar':'line',
+    data:{labels,datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:250},
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+        backgroundColor:'#1e222d',borderColor:'#2a2e39',borderWidth:1,
+        titleColor:'#787b86',bodyColor:'#d1d4dc',
+        titleFont:{family:'IBM Plex Mono',size:9},bodyFont:{family:'IBM Plex Mono',size:10},
+        callbacks:{label:c=>' ₨'+fmt(c.raw)}}},
+      scales:{
+        x:{grid:{color:'rgba(42,46,57,.5)'},ticks:{color:'#434651',font:{family:'IBM Plex Mono',size:8},maxTicksLimit:10}},
+        y:{grid:{color:'rgba(42,46,57,.5)'},position:'right',ticks:{color:'#434651',font:{family:'IBM Plex Mono',size:8},callback:v=>'₨'+Math.round(v)}}
+      }
+    }
+  });
+}
+function setTF(tf,btn){currentTF=tf;document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMainChart();}
+function setChartType(t,btn){chartType=t;document.querySelectorAll('.ct-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMainChart();}
+
+/* ════ MARKET PAGE ════ */
+function renderMarket(){
+  const byPct=[...stocks].sort((a,b)=>b.pct-a.pct);
+  const gain=byPct.slice(0,8),lose=[...stocks].sort((a,b)=>a.pct-b.pct).slice(0,8);
+  const active=[...stocks].sort((a,b)=>b.vol-a.vol).slice(0,8);
+  const row=(s,i)=>`<div class="mr-row" onclick="selectStock('${s.sym}');showPage('chart',document.querySelector('.nav-btn'))">
+    <div class="mr-n">${i+1}</div><div class="mr-sym">${s.sym}</div>
+    <div class="mr-name">${s.name}</div>
+    <span class="badge ${s.chg>=0?'up':'dn'}">${sign(s.pct)}${s.pct.toFixed(2)}%</span></div>`;
+  document.getElementById('m-gainers').innerHTML=gain.map(row).join('');
+  document.getElementById('m-losers').innerHTML=lose.map(row).join('');
+  document.getElementById('m-active').innerHTML=active.map((s,i)=>`<div class="mr-row" onclick="selectStock('${s.sym}');showPage('chart',document.querySelector('.nav-btn'))">
+    <div class="mr-n">${i+1}</div><div class="mr-sym">${s.sym}</div>
+    <div class="mr-name">${s.name}</div>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2)">${fmtV(s.vol)}</span></div>`).join('');
+  const secMap={};stocks.forEach(s=>{if(!secMap[s.sec])secMap[s.sec]={sum:0,cnt:0};secMap[s.sec].sum+=s.pct;secMap[s.sec].cnt++;});
+  document.getElementById('m-sectors').innerHTML=Object.entries(secMap).map(([k,v])=>({sec:k,avg:v.sum/v.cnt})).sort((a,b)=>b.avg-a.avg).map(s=>`
+    <div class="mr-row"><div class="mr-name" style="font-weight:600;color:var(--text)">${s.sec}</div>
+    <span class="badge ${s.avg>=0?'up':'dn'}">${sign(s.avg)}${s.avg.toFixed(2)}%</span></div>`).join('');
+}
+
+/* ════ SCREENER ════ */
+function buildScreenerSectors(){
+  const el=document.getElementById('sc-sector');if(!el)return;
+  el.innerHTML='<option value="">All Sectors</option>'+sectors.slice(1).map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+function scSort(k){scSortKey=k;document.getElementById('sc-sort').value=k;renderScreener();}
+function renderScreener(){
+  const q=(document.getElementById('sc-search')?.value||'').toLowerCase();
+  const sec=document.getElementById('sc-sector')?.value||'';
+  const sort=document.getElementById('sc-sort')?.value||scSortKey;
+  let list=stocks.filter(s=>(!q||s.sym.toLowerCase().includes(q)||s.name.toLowerCase().includes(q))&&(!sec||s.sec===sec));
+  list.sort((a,b)=>sort==='mcap'?b.mcap-a.mcap:sort==='price'?b.price-a.price:sort==='chg'?b.pct-a.pct:sort==='vol'?b.vol-a.vol:a.sym.localeCompare(b.sym));
+  document.getElementById('sc-body').innerHTML=list.map((s,i)=>`<tr onclick="selectStock('${s.sym}');showPage('chart',document.querySelectorAll('.nav-btn')[0])">
+    <td>${i+1}</td><td class="sym-c">${s.sym}</td><td class="name-c">${s.name}</td>
+    <td>₨${fmt(s.price)}</td><td><span class="badge ${s.chg>=0?'up':'dn'}">${sign(s.pct)}${s.pct.toFixed(2)}%</span></td>
+    <td>${fmtB(s.mcap)}</td><td>${fmtV(s.vol)}</td>
+    <td style="color:var(--text2);font-size:9px">${s.sec}</td></tr>`).join('');
+}
+
+/* ════ TRADING PANEL ════ */
+function setOrderSide(side){
+  orderSide=side;
+  document.getElementById('ot-buy').className='ot-btn buy'+(side==='BUY'?' active':'');
+  document.getElementById('ot-sell').className='ot-btn sell'+(side==='SELL'?' active':'');
+  const pb=document.getElementById('place-btn');
+  pb.textContent=`PLACE ${side} ORDER`;pb.className=`place-btn ${side.toLowerCase()}`;
+}
+function updateOrderTotal(){
+  const p=parseFloat(document.getElementById('oi-price')?.value)||0;
+  const q=parseInt(document.getElementById('oi-qty')?.value)||0;
+  const el=document.getElementById('oi-total');
+  if(el)el.textContent='₨'+fmt(p*q);
+}
+function showOrderMsg(msg,type){
+  const el=document.getElementById('order-msg');
+  el.textContent=msg;el.className=`order-msg ${type} show`;
+  setTimeout(()=>{el.className='order-msg';},3500);
+}
+function placeOrder(){
+  const sym=document.getElementById('oi-symbol').value;
+  const price=parseFloat(document.getElementById('oi-price').value);
+  const qty=parseInt(document.getElementById('oi-qty').value);
+  if(!sym||!price||!qty||qty<=0||price<=0){showOrderMsg('Invalid order details','err');return;}
+  const total=price*qty;
+  if(orderSide==='BUY'){
+    if(localPortfolio.balance<total){showOrderMsg('Insufficient virtual balance','err');return;}
+    localPortfolio.balance-=total;
+    if(!localPortfolio.positions[sym])localPortfolio.positions[sym]={qty:0,avgPrice:0};
+    const pos=localPortfolio.positions[sym];
+    const newQty=pos.qty+qty;
+    pos.avgPrice=((pos.qty*pos.avgPrice)+total)/newQty;
+    pos.qty=newQty;
+  } else {
+    const pos=localPortfolio.positions[sym];
+    if(!pos||pos.qty<qty){showOrderMsg('Insufficient shares to sell','err');return;}
+    localPortfolio.balance+=total;
+    pos.qty-=qty;
+    if(pos.qty===0)delete localPortfolio.positions[sym];
+  }
+  const trade={id:Date.now(),sym,action:orderSide,qty,price,total,
+    pkt:new Intl.DateTimeFormat('en-PK',{timeZone:'Asia/Karachi',dateStyle:'short',timeStyle:'medium'}).format(new Date())};
+  localPortfolio.history.unshift(trade);
+  savePortfolio();
+  showOrderMsg(`✓ ${orderSide} ${qty} × ${sym} @ ₨${fmt(price)}`,`ok`);
+  renderTradePanel();
+  renderTradesPage();
+}
+function resetPortfolio(){
+  if(!confirm('Reset your entire virtual portfolio? This cannot be undone.'))return;
+  localPortfolio={balance:10000000,positions:{},history:[]};
+  savePortfolio();renderTradePanel();renderTradesPage();
+}
+function savePortfolio(){
+  const sess=getSession();if(!sess)return;
+  localStorage.setItem(`pf_${sess.email}`,JSON.stringify(localPortfolio));
+}
+function loadPortfolio(){
+  const sess=getSession();if(!sess)return;
+  try{const d=JSON.parse(localStorage.getItem(`pf_${sess.email}`)||'null');if(d)localPortfolio=d;}catch{}
+}
+
+function renderTradePanel(){
+  const sess=getSession();
+  const sub=sess?getSubStatus(sess.email):{status:'none'};
+  const hasSub=sub.status==='trial'||sub.status==='paid';
+  document.getElementById('trade-lock').style.display=hasSub?'none':'flex';
+  document.getElementById('trade-form').style.display=hasSub?'flex':'none';
+  if(!hasSub)return;
+  document.getElementById('trade-balance').textContent='₨'+fmt(localPortfolio.balance);
+  const s=stocks.find(x=>x.sym===selectedSym)||stocks[0];
+  const pi=document.getElementById('oi-price');if(pi&&!pi.dataset.edited)pi.value=s.price.toFixed(2);
+  updateOrderTotal();
+  // positions list
+  const posArr=Object.entries(localPortfolio.positions);
+  document.getElementById('positions-list').innerHTML=posArr.length===0?
+    '<div class="no-pos">No open positions</div>':
+    posArr.map(([sym,pos])=>{
+      const cur=stocks.find(x=>x.sym===sym)?.price||pos.avgPrice;
+      const pnl=(cur-pos.avgPrice)*pos.qty;const pnlPct=((cur-pos.avgPrice)/pos.avgPrice*100);
+      return `<div class="pos-row" onclick="selectStock('${sym}')">
+        <div class="pos-sym">${sym}</div>
+        <div class="pos-qty">${pos.qty} shares</div>
+        <div class="pos-pnl ${pnl>=0?'up':'dn'}">${pnl>=0?'+':''}₨${fmt(Math.abs(pnl))}<br><span style="font-size:8px">(${sign(pnlPct)}${pnlPct.toFixed(2)}%)</span></div>
+      </div>`;}).join('');
+}
+
+function renderTradesPage(){
+  const sess=getSession();
+  const sub=sess?getSubStatus(sess.email):{status:'none'};
+  const hasSub=sub.status==='trial'||sub.status==='paid';
+  document.getElementById('trades-page-lock').style.display=hasSub?'none':'block';
+  document.getElementById('trades-page-content').style.display=hasSub?'block':'none';
+  if(!hasSub)return;
+  // stats
+  let totalVal=localPortfolio.balance;let totalCost=0;let unrealPnl=0;
+  Object.entries(localPortfolio.positions).forEach(([sym,pos])=>{
+    const cur=stocks.find(x=>x.sym===sym)?.price||pos.avgPrice;
+    totalVal+=cur*pos.qty;totalCost+=pos.avgPrice*pos.qty;unrealPnl+=(cur-pos.avgPrice)*pos.qty;
+  });
+  const startVal=10000000;const totalPnl=totalVal-startVal;
+  document.getElementById('trades-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-val neu">₨${fmt(totalVal)}</div></div>
+    <div class="stat-card"><div class="stat-label">Cash Balance</div><div class="stat-val neu">₨${fmt(localPortfolio.balance)}</div></div>
+    <div class="stat-card"><div class="stat-label">Unrealized P&amp;L</div><div class="stat-val ${unrealPnl>=0?'up':'dn'}">${sign(unrealPnl)}₨${fmt(Math.abs(unrealPnl))}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Return</div><div class="stat-val ${totalPnl>=0?'up':'dn'}">${sign(totalPnl)}${((totalPnl/startVal)*100).toFixed(2)}%</div></div>`;
+  // positions table
+  const posArr=Object.entries(localPortfolio.positions);
+  document.getElementById('positions-tbody').innerHTML=posArr.length===0?
+    `<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">No open positions — use the trade panel on the chart page</td></tr>`:
+    posArr.map(([sym,pos])=>{
+      const cur=stocks.find(x=>x.sym===sym)?.price||pos.avgPrice;
+      const mv=cur*pos.qty;const pnl=(cur-pos.avgPrice)*pos.qty;const pnlPct=((cur-pos.avgPrice)/pos.avgPrice*100);
+      return `<tr>
+        <td class="sym-c">${sym}</td>
+        <td>${pos.qty.toLocaleString()}</td>
+        <td>₨${fmt(pos.avgPrice)}</td>
+        <td>₨${fmt(cur)}</td>
+        <td>₨${fmt(mv)}</td>
+        <td style="color:${pnl>=0?'var(--green)':'var(--red)'}">${sign(pnl)}₨${fmt(Math.abs(pnl))}</td>
+        <td style="color:${pnl>=0?'var(--green)':'var(--red)'}">${sign(pnlPct)}${pnlPct.toFixed(2)}%</td>
+      </tr>`;}).join('');
+  // history
+  document.getElementById('history-tbody').innerHTML=localPortfolio.history.slice(0,50).map(t=>`<tr>
+    <td style="color:var(--text3)">${t.pkt}</td>
+    <td class="sym-c">${t.sym}</td>
+    <td style="color:${t.action==='BUY'?'var(--green)':'var(--red)';};font-weight:700">${t.action}</td>
+    <td>${t.qty.toLocaleString()}</td>
+    <td>₨${fmt(t.price)}</td>
+    <td>₨${fmt(t.total)}</td>
+  </tr>`).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px">No trades yet</td></tr>`;
+}
+
+/* ════ PAGES ════ */
+function showPage(p,btn){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(p==='chart'){setTimeout(renderMainChart,40);}
+  if(p==='market'){renderMarket();}
+  if(p==='screener'){buildScreenerSectors();renderScreener();}
+  if(p==='trades'){renderTradesPage();}
+}
+
+/* ════ AUTH & SUB STATE (localStorage mirror — replace with API calls in prod) ════ */
+const TRIAL_DAYS=30;
+function hashPass(p){let h=0;for(let i=0;i<p.length;i++){h=(h<<5)-h+p.charCodeAt(i);h|=0;}return h.toString(36);}
+function getUsers(){try{return JSON.parse(localStorage.getItem('psxview_users')||'[]');}catch{return[];}}
+function saveUsers(u){localStorage.setItem('psxview_users',JSON.stringify(u));}
+function getSession(){try{return JSON.parse(sessionStorage.getItem('psxview_sess')||'null');}catch{return null;}}
+function setSession(s){sessionStorage.setItem('psxview_sess',JSON.stringify(s));}
+function clearSession(){sessionStorage.removeItem('psxview_sess');}
+function getSubStatus(email){
+  const users=getUsers();const u=users.find(x=>x.email===email);
+  if(!u)return{status:'none'};
+  const now=Date.now();
+  if(u.subActive&&u.subExpiry>now)return{status:'paid',expiry:u.subExpiry,daysLeft:Math.ceil((u.subExpiry-now)/86400000)};
+  if(u.trialStart){
+    const end=u.trialStart+(TRIAL_DAYS*86400000);
+    const d=Math.ceil((end-now)/86400000);
+    if(now<end)return{status:'trial',daysLeft:d};
+    return{status:'expired'};
+  }
+  return{status:'none'};
+}
+
+function renderBanners(){
+  const sess=getSession();
+  document.getElementById('trial-banner').style.display='none';
+  document.getElementById('expired-banner').style.display='none';
+  if(!sess)return;
+  const sub=getSubStatus(sess.email);
+  if(sub.status==='trial'){
+    document.getElementById('trial-banner').style.display='flex';
+    document.getElementById('trial-days-pill').textContent=sub.daysLeft+' day'+(sub.daysLeft!==1?'s':'')+' left';
+  }else if(sub.status==='expired'){
+    document.getElementById('expired-banner').style.display='flex';
+  }
+  document.getElementById('trades-lock-icon').textContent=
+    (sub.status==='trial'||sub.status==='paid')?'':'🔒';
+}
+
+function renderNavUser(){
+  const sess=getSession();const a=document.getElementById('user-nav');
+  if(sess){
+    const ini=sess.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const sub=getSubStatus(sess.email);
+    const badge=sub.status==='paid'?'<span class="sub-badge paid">PRO</span>':
+      sub.status==='trial'?`<span class="sub-badge trial">${sub.daysLeft}d TRIAL</span>`:
+      '<span class="sub-badge expired">EXPIRED</span>';
+    a.innerHTML=`<button class="user-chip" onclick="toggleDD(this)"><div class="uavatar">${ini}</div><span>${sess.name.split(' ')[0]}</span>${badge}<span style="opacity:.4;margin-left:2px">▾</span></button>`;
+  } else {
+    a.innerHTML=`<button class="login-btn" onclick="openAuth('login')">SIGN IN / REGISTER</button>`;
+  }
+}
+
+function toggleDD(el){
+  const ex=document.getElementById('user-dropdown');if(ex){ex.remove();return;}
+  const sess=getSession();if(!sess)return;
+  const sub=getSubStatus(sess.email);
+  const r=el.getBoundingClientRect();
+  const dd=document.createElement('div');dd.id='user-dropdown';
+  dd.style.cssText=`position:fixed;top:${r.bottom+4}px;right:${window.innerWidth-r.right}px;background:var(--panel);border:1px solid var(--border);z-index:700;min-width:210px;`;
+  const subLine=sub.status==='paid'?`<div style="color:var(--green);font-size:9px;margin-top:3px">✓ PRO — expires ${new Date(sub.expiry).toLocaleDateString('en-PK')}</div>`:
+    sub.status==='trial'?`<div style="color:#7bc843;font-size:9px;margin-top:3px">🕐 Trial — ${sub.daysLeft} days left</div>`:
+    `<div style="color:var(--red);font-size:9px;margin-top:3px">⚠ Trial expired</div>`;
+  const upgradeRow=sub.status!=='paid'?
+    `<div class="dd-item" style="color:var(--orange);border-top:1px solid var(--border)" onclick="openPaywall();document.getElementById('user-dropdown')?.remove()">💳 Upgrade — $10/mo</div>`:
+    `<div class="dd-item" style="cursor:default;border-top:1px solid var(--border);color:var(--green)">✓ Active subscriber</div>`;
+  // Manage subscription (Stripe portal) — only in real backend
+  const manageRow=sub.status==='paid'?
+    `<div class="dd-item" style="color:var(--text2)" onclick="openStripePortal()">⚙ Manage Subscription</div>`:'';
+  dd.innerHTML=`<div class="dd-item" style="cursor:default;border-bottom:1px solid var(--border)">
+    <div style="font-weight:700;color:var(--text)">${sess.name}</div>
+    <div style="color:var(--text3);font-size:9px">${sess.email}</div>${subLine}</div>
+    ${upgradeRow}${manageRow}
+    <div class="dd-item" style="color:var(--red)" onclick="doLogout()">⏏ Sign Out</div>`;
+  document.body.appendChild(dd);
+  setTimeout(()=>document.addEventListener('click',function h(e){if(!dd.contains(e.target)&&!el.contains(e.target)){dd.remove();document.removeEventListener('click',h);}},true),10);
+}
+function doLogout(){clearSession();renderNavUser();renderBanners();renderTradePanel();document.getElementById('user-dropdown')?.remove();}
+
+/* ════ AUTH MODAL ════ */
+function openAuth(tab){
+  switchAuthTab(tab||'login');
+  ['l-email','l-pass','su-name','su-email','su-pass','su-pass2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['l-err','l-ok','su-err','su-ok'].forEach(id=>{const e=document.getElementById(id);if(e){e.className='auth-msg error';e.textContent='';}});
+  document.getElementById('auth-overlay').classList.add('show');
+}
+function closeAuth(){document.getElementById('auth-overlay').classList.remove('show');}
+document.getElementById('auth-overlay').addEventListener('click',e=>{if(e.target.id==='auth-overlay')closeAuth();});
+function switchAuthTab(t){
+  document.getElementById('panel-login').style.display=t==='login'?'block':'none';
+  document.getElementById('panel-signup').style.display=t==='signup'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active',t==='login');
+  document.getElementById('tab-signup').classList.toggle('active',t==='signup');
+}
+function showMsg(id,msg,type){const e=document.getElementById(id);if(!e)return;e.textContent=msg;e.className=`auth-msg ${type} show`;}
+
+function doLogin(){
+  const email=document.getElementById('l-email').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+  if(!email||!pass){showMsg('l-err','Please fill all fields.','error');return;}
+  const user=getUsers().find(u=>u.email===email);
+  if(!user||user.passHash!==hashPass(pass)){showMsg('l-err','Incorrect email or password.','error');return;}
+  setSession({email:user.email,name:user.name});
+  loadPortfolio();
+  showMsg('l-ok','Signed in!','success');
+  setTimeout(()=>{closeAuth();renderNavUser();renderBanners();renderTradePanel();renderTradesPage();checkAccessGate();},600);
+}
+function doSignup(){
+  const name=document.getElementById('su-name').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase();
+  const pass=document.getElementById('su-pass').value;
+  const pass2=document.getElementById('su-pass2').value;
+  if(!name||!email||!pass||!pass2){showMsg('su-err','Please fill all fields.','error');return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showMsg('su-err','Invalid email address.','error');return;}
+  if(pass.length<6){showMsg('su-err','Password must be at least 6 characters.','error');return;}
+  if(pass!==pass2){showMsg('su-err','Passwords do not match.','error');return;}
+  const users=getUsers();
+  if(users.find(u=>u.email===email)){showMsg('su-err','Email already registered.','error');return;}
+  users.push({email,name,passHash:hashPass(pass),trialStart:Date.now(),subActive:false,subExpiry:0});
+  saveUsers(users);setSession({email,name});
+  localPortfolio={balance:10000000,positions:{},history:[]};savePortfolio();
+  showMsg('su-ok','Account created! 30-day trial started — enjoy paper trading! 🎉','success');
+  setTimeout(()=>{closeAuth();renderNavUser();renderBanners();renderTradePanel();},800);
+}
+
+/* ════ PAYWALL / STRIPE ════ */
+function openPaywall(){
+  const sess=getSession();
+  if(!sess){openAuth('signup');return;}
+  document.getElementById('paywall-overlay').classList.add('show');
+}
+function closePaywall(){document.getElementById('paywall-overlay').classList.remove('show');}
+document.getElementById('paywall-overlay').addEventListener('click',e=>{if(e.target.id==='paywall-overlay')closePaywall();});
+
+async function startStripeCheckout(){
+  const sess=getSession();
+  if(!sess){closePaywall();openAuth('signup');return;}
+  // In production: call your backend → /api/stripe/create-checkout
+  // The backend returns a Stripe checkout URL, we redirect there.
+  try{
+    const btn=document.querySelector('.pw-cta');
+    btn.textContent='REDIRECTING TO STRIPE...';btn.disabled=true;
+    const res=await fetch('/api/stripe/create-checkout',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      credentials:'include'
+    });
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{
+      btn.textContent='💳  SUBSCRIBE — $10/month';btn.disabled=false;
+      alert('Could not start checkout. Make sure the server is running with your Stripe keys.');
+    }
+  }catch(e){
+    // Server not running — show instructions
+    const btn=document.querySelector('.pw-cta');
+    btn.textContent='💳  SUBSCRIBE — $10/month';btn.disabled=false;
+    alert('⚠ Stripe requires the PSXView backend server.\n\nTo enable payments:\n1. Run server.js (Node.js)\n2. Add your Stripe keys to .env\n3. Start: node server.js\n\nSee README.md for full setup instructions.');
+  }
+}
+
+async function openStripePortal(){
+  document.getElementById('user-dropdown')?.remove();
+  try{
+    const res=await fetch('/api/stripe/portal',{method:'POST',credentials:'include'});
+    const data=await res.json();
+    if(data.url)window.location.href=data.url;
+  }catch{alert('Stripe portal requires the backend server. See README.md.');}
+}
+
+function checkAccessGate(){
+  const sess=getSession();if(!sess)return;
+  const sub=getSubStatus(sess.email);
+  if(sub.status==='expired')setTimeout(openPaywall,500);
+}
+
+// Handle Stripe redirect back
+function checkStripeReturn(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success'){
+    // Backend webhook handles activation — reload session
+    alert('✅ Payment successful! Your PSXView subscription is now active.');
+    window.history.replaceState({},'','/');
+  }else if(params.get('payment')==='cancelled'){
+    window.history.replaceState({},'','/');
+  }
+}
+
+/* ════ LIVE SIM ════ */
+function simulateLive(){
+  stocks.forEach(s=>{
+    const d=(Math.random()-.487)*.8;
+    s.price=Math.max(0.5,+(s.price+d).toFixed(2));
+    s.chg=+(s.chg+(d*.04)).toFixed(2);
+    s.pct=+((s.chg/(s.price-s.chg+0.001))*100).toFixed(2);
+  });
+  buildTicker();
+  const s=stocks.find(x=>x.sym===selectedSym);
+  if(s&&document.getElementById('page-chart').classList.contains('active')){
+    document.getElementById('sh-price').textContent='₨'+fmt(s.price);
+    const up=s.chg>=0;
+    document.getElementById('sh-price').className='sh-price '+(up?'up':'dn');
+    document.getElementById('sh-chg').textContent=(up?'▲ +':'▼ ')+fmt(Math.abs(s.chg))+' ('+(up?'+':'')+s.pct.toFixed(2)+'%)';
+    document.getElementById('sh-chg').className='sh-chg '+(up?'up':'dn');
+    const oi=document.getElementById('oi-price');
+    if(oi&&!oi.dataset.edited)oi.value=s.price.toFixed(2);
+    updateOrderTotal();
+  }
+  if(document.getElementById('page-trades').classList.contains('active'))renderTradesPage();
+}
+
+/* ════ INIT ════ */
+checkStripeReturn();
+buildSectorPills();
+buildTicker();
+loadPortfolio();
+renderNavUser();
+renderBanners();
+renderSidebar();
+selectStock('OGDC');
+renderTradePanel();
+checkAccessGate();
+setInterval(simulateLive,2500);
+window.addEventListener('resize',()=>{if(mainChart)renderMainChart();});
+</script>
+</body>
+</html>
+ virtual money. No real funds at risk.</div>
+      <div class="paywall-price"><div class="paywall-amt">$10</div><div class="paywall-per">/month</div></div>
+    </div>
+    <div class="paywall-body">
+      <div class="features-grid">
+        <div class="feat-item">Live simulated PSX feed</div>
+        <div class="feat-item">120+ listed companies</div>
+        <div class="feat-item">Interactive charts</div>
+        <div class="feat-item">Full market screener</div>
+        <div class="feat-item pro">⚡ Demo trading simulator</div>
+        <div class="feat-item pro">⚡ ₨1M virtual portfolio</div>
+        <div class="feat-item pro">⚡ Trade history & P&L</div>
+        <div class="feat-item">Cancel anytime</div>
+      </div>
+      <button class="pay-btn-primary" id="stripe-btn" onclick="redirectToStripe()">💳 &nbsp;SUBSCRIBE WITH STRIPE — $10/mo</button>
+      <button class="pay-btn-secondary" onclick="closePaywall()">Maybe later</button>
+      <div class="stripe-badge">🔒 Powered by <strong style="color:#635bff;margin-left:3px;">Stripe</strong> — Secure payment processing</div>
+      <div class="paywall-note">30-day free trial for new accounts · Billed monthly · Cancel anytime</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   PSXView — Full JS: Data, Charts, Auth, Trading, Stripe
+═══════════════════════════════════════════════════ */
+
+const API = ''; // Empty = same origin. If hosting separately, set to 'http://localhost:3000'
+const TRIAL_DAYS = 30;
+const DEMO_START_BALANCE = 1000000;
+
+/* ─── PSX STOCK DATA ─── */
+const COMPANIES = [
+  {sym:'OGDC', name:'Oil and Gas Development Co.',    sec:'Energy',       price:275.11,chg:2.30, pct:0.84, vol:18500000,mcap:1170000000000,pe:6.2, div:8.1},
+  {sym:'UBL',  name:'United Bank Limited',            sec:'Banking',      price:379.66,chg:2.14, pct:0.57, vol:9800000, mcap:945350000000, pe:8.4, div:7.2},
+  {sym:'MARI', name:'Mari Energies Limited',          sec:'Energy',       price:707.38,chg:2.47, pct:0.35, vol:3200000, mcap:849300000000, pe:9.1, div:4.2},
+  {sym:'FFC',  name:'Fauji Fertilizer Co.',           sec:'Fertilizer',   price:584.94,chg:12.77,pct:2.23, vol:7600000, mcap:832430000000, pe:7.8, div:11.2},
+  {sym:'MEBL', name:'Meezan Bank Limited',            sec:'Banking',      price:431.80,chg:0.78, pct:0.18, vol:6100000, mcap:776080000000, pe:11.2,div:5.1},
+  {sym:'LUCK', name:'Lucky Cement Limited',           sec:'Cement',       price:488.82,chg:1.56, pct:0.32, vol:3100000, mcap:716120000000, pe:12.4,div:3.8},
+  {sym:'PPL',  name:'Pakistan Petroleum Limited',     sec:'Energy',       price:220.27,chg:3.24, pct:1.49, vol:12300000,mcap:599350000000, pe:5.8, div:9.4},
+  {sym:'NBP',  name:'National Bank of Pakistan',      sec:'Banking',      price:217.69,chg:0.93, pct:0.43, vol:22100000,mcap:463140000000, pe:4.1, div:12.2},
+  {sym:'HBL',  name:'Habib Bank Limited',             sec:'Banking',      price:311.35,chg:1.12, pct:0.36, vol:9800000, mcap:455090000000, pe:7.6, div:6.8},
+  {sym:'MCB',  name:'MCB Bank Limited',               sec:'Banking',      price:367.97,chg:10.62,pct:2.97, vol:7200000, mcap:436070000000, pe:8.9, div:8.4},
+  {sym:'PAKT', name:'Pakistan Tobacco Co.',           sec:'Tobacco',      price:1497.28,chg:-13.28,pct:-0.88,vol:890000,mcap:382550000000, pe:14.2,div:5.6},
+  {sym:'NESTLE',name:'Nestlé Pakistan Limited',       sec:'Food',         price:8000.00,chg:0,   pct:0,    vol:120000, mcap:362800000000, pe:32.1,div:2.1},
+  {sym:'BWCL', name:'Bestway Cement Limited',         sec:'Cement',       price:545.02,chg:0.71, pct:0.13, vol:2800000, mcap:324950000000, pe:8.2, div:4.4},
+  {sym:'FATIMA',name:'Fatima Fertilizer Co.',         sec:'Fertilizer',   price:149.83,chg:0.03, pct:0.02, vol:10200000,mcap:314580000000,pe:6.4, div:10.8},
+  {sym:'COLG', name:'Colgate-Palmolive Pakistan',     sec:'Consumer',     price:1280.01,chg:1.41,pct:0.11, vol:480000, mcap:310750000000, pe:28.4,div:2.8},
+  {sym:'EFERT', name:'Engro Fertilizers Limited',     sec:'Fertilizer',   price:219.43,chg:3.45, pct:1.60, vol:8900000, mcap:293000000000,pe:7.2, div:9.6},
+  {sym:'HUBC', name:'The Hub Power Company',          sec:'Power',        price:224.57,chg:2.34, pct:1.05, vol:5400000, mcap:288270000000, pe:9.8, div:7.4},
+  {sym:'ENGROH',name:'Engro Holding Limited',         sec:'Holding',      price:216.41,chg:-1.17,pct:-0.54,vol:6700000,mcap:262020000000, pe:8.6, div:5.2},
+  {sym:'SCBPL',name:'Standard Chartered Bank Pak.',   sec:'Banking',      price:67.50, chg:0.25, pct:0.37, vol:4100000, mcap:261330000000, pe:10.4,div:4.8},
+  {sym:'SYS',  name:'Systems Limited',                sec:'Technology',   price:164.85,chg:3.86, pct:2.39, vol:3200000, mcap:242800000000, pe:24.6,div:1.2},
+  {sym:'PTC',  name:'Pakistan Telecom. Co.',          sec:'Telecom',      price:45.86, chg:-0.30,pct:-0.65,vol:18400000,mcap:235420000000,pe:7.8, div:6.2},
+  {sym:'PSO',  name:'Pakistan State Oil Co.',         sec:'Energy',       price:469.36,chg:1.50, pct:0.32, vol:8900000, mcap:219650000000, pe:5.1, div:11.4},
+  {sym:'ABL',  name:'Allied Bank Limited',            sec:'Banking',      price:181.87,chg:-0.86,pct:-0.47,vol:5600000,mcap:209240000000, pe:6.8, div:7.8},
+  {sym:'BAHL', name:'Bank AL Habib Limited',          sec:'Banking',      price:184.59,chg:1.08, pct:0.59, vol:4800000, mcap:205160000000, pe:7.4, div:6.4},
+  {sym:'ATLH', name:'Atlas Honda Limited',            sec:'Automobile',   price:1430.04,chg:-2.86,pct:-0.20,vol:1200000,mcap:177800000000,pe:14.8,div:4.2},
+  {sym:'POL',  name:'Pakistan Oilfields Limited',     sec:'Energy',       price:619.52,chg:2.54, pct:0.41, vol:2400000, mcap:175850000000, pe:7.6, div:10.2},
+  {sym:'BAFL', name:'Bank Alfalah Limited',           sec:'Banking',      price:104.89,chg:0.16, pct:0.15, vol:7800000, mcap:165430000000, pe:6.2, div:8.6},
+  {sym:'KEL',  name:'K-Electric Limited',             sec:'Power',        price:5.62,  chg:-0.05,pct:-0.88,vol:42000000,mcap:156580000000,pe:0,   div:0},
+  {sym:'INDU', name:'Indus Motor Company',            sec:'Automobile',   price:1977.02,chg:9.84,pct:0.50, vol:980000, mcap:154630000000, pe:18.4,div:3.6},
+  {sym:'FCCL', name:'Fauji Cement Company',           sec:'Cement',       price:57.47, chg:1.34, pct:2.39, vol:11200000,mcap:137680000000,pe:7.4, div:5.2},
+  {sym:'AKBL', name:'Askari Bank Limited',            sec:'Banking',      price:94.24, chg:-0.60,pct:-0.63,vol:6200000,mcap:136580000000, pe:5.8, div:9.2},
+  {sym:'FABL', name:'Faysal Bank Limited',            sec:'Banking',      price:89.68, chg:0.42, pct:0.47, vol:5800000, mcap:135470000000, pe:6.4, div:7.6},
+  {sym:'MLCF', name:'Maple Leaf Cement Factory',      sec:'Cement',       price:123.34,chg:3.82, pct:3.19, vol:15600000,mcap:125220000000,pe:9.2, div:3.8},
+  {sym:'GLAXO',name:'GlaxoSmithKline Pakistan',       sec:'Pharma',       price:390.50,chg:0.04, pct:0.01, vol:1800000, mcap:124350000000, pe:22.6,div:2.4},
+  {sym:'HMB',  name:'Habib Metropolitan Bank',        sec:'Banking',      price:112.00,chg:0,    pct:0,    vol:3200000, mcap:117360000000, pe:6.8, div:8.2},
+  {sym:'BOP',  name:'The Bank of Punjab',             sec:'Banking',      price:35.25, chg:0.29, pct:0.83, vol:18400000,mcap:114370000000,pe:4.2, div:10.4},
+  {sym:'ILP',  name:'Interloop Limited',              sec:'Textile',      price:78.09, chg:-0.59,pct:-0.75,vol:9200000,mcap:109460000000, pe:11.4,div:3.2},
+  {sym:'DGKC', name:'D.G. Khan Cement Co.',           sec:'Cement',       price:242.04,chg:-1.73,pct:-0.71,vol:4400000,mcap:106800000000, pe:8.8, div:4.6},
+  {sym:'MTL',  name:'Millat Tractors Limited',        sec:'Automobile',   price:509.19,chg:1.42, pct:0.28, vol:1800000, mcap:101310000000, pe:12.2,div:5.8},
+  {sym:'ABOT', name:'Abbott Laboratories Pakistan',   sec:'Pharma',       price:1023.58,chg:5.42,pct:0.53, vol:680000, mcap:100210000000, pe:26.4,div:1.8},
+  {sym:'KOHC', name:'Kohat Cement Company',           sec:'Cement',       price:104.14,chg:-4.39,pct:-4.05,vol:6800000,mcap:96310000000,  pe:7.6, div:5.4},
+  {sym:'PIOC', name:'Pioneer Cement Limited',         sec:'Cement',       price:412.14,chg:3.36, pct:0.82, vol:2200000, mcap:92860000000, pe:10.4,div:3.4},
+  {sym:'NATF', name:'National Foods Limited',         sec:'Food',         price:390.94,chg:-1.06,pct:-0.27,vol:1800000,mcap:91130000000,  pe:18.6,div:2.6},
+  {sym:'PNSC', name:'Pakistan National Shipping',     sec:'Transport',    price:447.86,chg:-8.80,pct:-1.93,vol:2100000,mcap:88660000000,  pe:8.4, div:6.8},
+  {sym:'SNGP', name:'Sui Northern Gas Pipelines',     sec:'Energy',       price:118.05,chg:0.65, pct:0.55, vol:6800000, mcap:74870000000, pe:5.2, div:8.4},
+  {sym:'ATRL', name:'Attock Refinery Limited',        sec:'Energy',       price:657.38,chg:-3.56,pct:-0.54,vol:1400000,mcap:70380000000,  pe:6.8, div:7.2},
+  {sym:'CHCC', name:'Cherat Cement Company',          sec:'Cement',       price:346.84,chg:-6.48,pct:-1.83,vol:1900000,mcap:69910000000,  pe:9.4, div:4.2},
+  {sym:'AIRLINK',name:'Air Link Communication',       sec:'Technology',   price:173.19,chg:1.60, pct:0.93, vol:8200000, mcap:67830000000, pe:16.8,div:2.4},
+  {sym:'APL',  name:'Attock Petroleum Limited',       sec:'Energy',       price:556.79,chg:0.45, pct:0.08, vol:2100000, mcap:66440000000, pe:5.4, div:9.6},
+  {sym:'NML',  name:'Nishat Mills Limited',           sec:'Textile',      price:186.26,chg:9.57, pct:5.40, vol:6400000, mcap:65490000000, pe:8.6, div:4.8},
+  {sym:'PKGS', name:'Packages Limited',               sec:'Packaging',    price:731.35,chg:3.36, pct:0.46, vol:1200000, mcap:65070000000, pe:14.2,div:3.6},
+  {sym:'SEARL',name:'The Searle Company',             sec:'Pharma',       price:106.44,chg:0.59, pct:0.56, vol:3800000, mcap:62610000000, pe:19.4,div:2.2},
+  {sym:'AGP',  name:'AGP Limited',                    sec:'Pharma',       price:190.59,chg:0.72, pct:0.38, vol:2400000, mcap:53160000000, pe:21.6,div:1.8},
+  {sym:'PAEL', name:'Pak Elektron Limited',           sec:'Engineering',  price:54.67, chg:-0.29,pct:-0.53,vol:9800000,mcap:50760000000,  pe:12.8,div:2.4},
+  {sym:'ISL',  name:'International Steels Limited',   sec:'Steel',        price:111.65,chg:0.28, pct:0.25, vol:4200000, mcap:48570000000, pe:8.4, div:5.6},
+  {sym:'JDWS', name:'JDW Sugar Mills Limited',        sec:'Sugar',        price:844.37,chg:12.30,pct:1.48, vol:1100000, mcap:48080000000, pe:9.2, div:4.4},
+  {sym:'SSGC', name:'Sui Southern Gas Company',       sec:'Energy',       price:41.39, chg:-1.06,pct:-2.50,vol:12400000,mcap:36460000000, pe:4.8, div:7.6},
+  {sym:'EPCL', name:'Engro Polymer & Chemicals',      sec:'Chemical',     price:38.58, chg:0.66, pct:1.74, vol:7800000, mcap:34470000000, pe:11.2,div:3.8},
+  {sym:'NRL',  name:'National Refinery Limited',      sec:'Energy',       price:422.73,chg:5.42, pct:1.30, vol:1800000, mcap:33370000000, pe:6.2, div:8.4},
+  {sym:'SHFA', name:'Shifa International Hospitals',  sec:'Healthcare',   price:515.00,chg:-6.40,pct:-1.23,vol:980000, mcap:32960000000,  pe:18.4,div:2.2},
+  {sym:'MUGHAL',name:'Mughal Iron & Steel Industries',sec:'Steel',        price:88.39, chg:-1.62,pct:-1.80,vol:6800000,mcap:32590000000,  pe:7.8, div:5.2},
+  {sym:'KAPCO',name:'Kot Addu Power Company',         sec:'Power',        price:36.41, chg:1.32, pct:3.76, vol:8400000, mcap:32050000000, pe:8.4, div:12.4},
+  {sym:'BIPL', name:'BankIslami Pakistan Limited',    sec:'Banking',      price:33.90, chg:-0.57,pct:-1.65,vol:7800000,mcap:37590000000,  pe:5.6, div:6.8},
+  {sym:'BOK',  name:'The Bank of Khyber',             sec:'Banking',      price:32.96, chg:0.61, pct:1.89, vol:6200000, mcap:37460000000, pe:4.8, div:8.2},
+  {sym:'AICL', name:'Adamjee Insurance Company',      sec:'Insurance',    price:80.11, chg:-0.93,pct:-1.15,vol:3200000,mcap:28360000000,  pe:12.4,div:4.2},
+  {sym:'SNBL', name:'Soneri Bank Limited',            sec:'Banking',      price:25.70, chg:0.31, pct:1.22, vol:8400000, mcap:28200000000, pe:5.2, div:9.4},
+  {sym:'PIBTL',name:'Pakistan Intl Bulk Terminal',    sec:'Transport',    price:15.63, chg:0.16, pct:1.03, vol:12400000,mcap:27630000000, pe:8.6, div:5.8},
+  {sym:'UNITY',name:'Unity Foods Limited',            sec:'Food',         price:22.01, chg:-0.18,pct:-0.81,vol:14200000,mcap:26280000000, pe:9.8, div:3.6},
+  {sym:'GWLC', name:'Gharibwal Cement Limited',       sec:'Cement',       price:63.10, chg:0.34, pct:0.54, vol:6800000, mcap:25260000000, pe:7.4, div:5.6},
+  {sym:'INIL', name:'International Industries',       sec:'Steel',        price:190.94,chg:-11.64,pct:-5.76,vol:4200000,mcap:25180000000, pe:8.2, div:6.4},
+  {sym:'POWER',name:'Power Cement Limited',           sec:'Cement',       price:19.05, chg:0.06, pct:0.32, vol:14600000,mcap:24610000000, pe:11.4,div:3.2},
+  {sym:'EFUG', name:'EFU General Insurance',          sec:'Insurance',    price:119.87,chg:-0.72,pct:-0.60,vol:1800000,mcap:23700000000,  pe:10.8,div:4.8},
+  {sym:'AGTL', name:'Al-Ghazi Tractors Limited',      sec:'Automobile',   price:408.49,chg:2.04, pct:0.50, vol:980000, mcap:23560000000,  pe:11.4,div:5.4},
+  {sym:'PRL',  name:'Pakistan Refinery Limited',      sec:'Energy',       price:36.71, chg:-0.46,pct:-1.24,vol:8400000,mcap:23420000000,  pe:7.2, div:6.8},
+  {sym:'GATM', name:'Gul Ahmed Textile Mills',        sec:'Textile',      price:28.39, chg:-0.24,pct:-0.84,vol:9800000,mcap:21010000000,  pe:7.8, div:4.2},
+  {sym:'JKSM', name:'J.K. Spinning Mills Limited',    sec:'Textile',      price:209.86,chg:9.85, pct:4.93, vol:2400000, mcap:20460000000, pe:10.4,div:3.8},
+  {sym:'TRG',  name:'TRG Pakistan Limited',           sec:'Technology',   price:71.70, chg:0.27, pct:0.38, vol:6200000, mcap:38960000000, pe:0,   div:0},
+  {sym:'ACPL', name:'Attock Cement Pakistan',         sec:'Cement',       price:281.87,chg:0.03, pct:0.01, vol:1800000, mcap:38730000000, pe:9.8, div:4.4},
+  {sym:'DCR',  name:'Dolmen City REIT',               sec:'Real Estate',  price:35.52, chg:0.08, pct:0.23, vol:4200000, mcap:78990000000, pe:14.2,div:6.8},
+  {sym:'JSCL', name:'Jahangir Siddiqui & Co.',        sec:'Financial',    price:26.57, chg:0.57, pct:2.19, vol:6800000, mcap:23810000000, pe:7.8, div:5.4},
+  {sym:'LOTCHEM',name:'Lotte Chemical Pakistan',      sec:'Chemical',     price:29.78, chg:0.03, pct:0.10, vol:6800000, mcap:45090000000, pe:0,   div:0},
+  {sym:'THALL',name:'Thal Limited',                   sec:'Engineering',  price:530.03,chg:-9.45,pct:-1.75,vol:1400000,mcap:42950000000,  pe:12.6,div:3.8},
+  {sym:'CNERGY',name:'Cnergyico PK Limited',          sec:'Energy',       price:7.72,  chg:-0.07,pct:-0.90,vol:32000000,mcap:42520000000, pe:0,   div:0},
+  {sym:'AGL',  name:'Agritech Limited',               sec:'Fertilizer',   price:68.41, chg:-0.49,pct:-0.71,vol:5200000,mcap:41280000000,  pe:0,   div:0},
+  {sym:'HCAR', name:'Honda Atlas Cars Pakistan',      sec:'Automobile',   price:281.02,chg:0.31, pct:0.11, vol:2800000, mcap:40090000000, pe:14.8,div:3.2},
+  {sym:'FLYNG',name:'Flying Cement Company',          sec:'Cement',       price:54.74, chg:0.03, pct:0.06, vol:6400000, mcap:38030000000, pe:12.2,div:2.8},
+  {sym:'GHGL', name:'Ghani Glass Limited',            sec:'Glass',        price:37.68, chg:0.35, pct:0.94, vol:7800000, mcap:37320000000, pe:11.4,div:3.6},
+  {sym:'TGL',  name:'Tariq Glass Industries',         sec:'Glass',        price:214.40,chg:-0.32,pct:-0.15,vol:2400000,mcap:36910000000,  pe:12.8,div:3.2},
+  {sym:'KAPCO',name:'Kot Addu Power Company',         sec:'Power',        price:36.41, chg:1.32, pct:3.76, vol:8400000, mcap:32050000000, pe:8.4, div:12.4},
+  {sym:'PSX',  name:'Pakistan Stock Exchange',        sec:'Financial',    price:45.64, chg:0.12, pct:0.26, vol:3200000, mcap:36480000000, pe:14.6,div:5.2},
+  {sym:'PIAHCLA',name:'PIA Holding Company',          sec:'Transport',    price:44.20, chg:-0.46,pct:-1.03,vol:14200000,mcap:267630000000,pe:0,   div:0},
+  {sym:'UPFL', name:'Unilever Pakistan Foods',        sec:'Food',         price:28863.2,chg:152.8,pct:0.53,vol:18000,  mcap:182880000000, pe:28.4,div:2.4},
+  {sym:'SAZEW',name:'Sazgar Engineering Works',       sec:'Automobile',   price:1668.97,chg:-4.54,pct:-0.27,vol:980000,mcap:100880000000, pe:14.6,div:3.4},
+  {sym:'ISIL', name:'Ismail Industries Limited',      sec:'Food',         price:1975.00,chg:5.93,pct:0.30, vol:480000, mcap:130670000000, pe:16.8,div:2.8},
+  {sym:'HALEON',name:'Haleon Pakistan Limited',       sec:'Consumer',     price:824.14,chg:-15.97,pct:-1.90,vol:880000,mcap:96470000000,  pe:22.4,div:2.2},
+  {sym:'PSEL', name:'Pakistan Services Limited',      sec:'Hospitality',  price:1349.82,chg:31.78,pct:2.41,vol:480000, mcap:42870000000,  pe:22.4,div:1.8},
+  {sym:'STYLERS',name:'Stylers International',        sec:'Textile',      price:48.49, chg:2.33, pct:5.05, vol:2800000, mcap:23700000000, pe:0,   div:0},
+  {sym:'FFL',  name:'Fauji Foods Limited',            sec:'Food',         price:19.75, chg:-0.18,pct:-0.90,vol:8400000,mcap:50220000000,  pe:0,   div:0},
+  {sym:'MUGHALC',name:'Mughal Iron & Steel (C)',      sec:'Steel',        price:57.25, chg:1.26, pct:2.23, vol:4800000, mcap:32590000000, pe:7.8, div:5.2},
+  {sym:'WAFI', name:'Wafi Energy Pakistan',           sec:'Energy',       price:212.91,chg:0.96, pct:0.45, vol:3200000, mcap:45570000000, pe:6.4, div:7.8},
+  {sym:'PKGP', name:'Pakgen Power Limited',           sec:'Power',        price:59.84, chg:0.92, pct:1.56, vol:4800000, mcap:22270000000, pe:8.8, div:8.4},
+  {sym:'SAPT', name:'Sapphire Textile Mills',         sec:'Textile',      price:1396.00,chg:0,   pct:0,    vol:180000, mcap:30280000000,  pe:8.4, div:4.2},
+  {sym:'NML',  name:'Nishat Mills Limited',           sec:'Textile',      price:186.26,chg:9.57, pct:5.40, vol:6400000, mcap:65490000000, pe:8.6, div:4.8},
+  {sym:'KTML', name:'Kohinoor Textile Mills',         sec:'Textile',      price:67.76, chg:-0.19,pct:-0.28,vol:4800000,mcap:91490000000,  pe:0,   div:0},
+  {sym:'NPL',  name:'Nishat Power Limited',           sec:'Power',        price:56.18, chg:-0.04,pct:-0.07,vol:3800000,mcap:19910000000,  pe:7.6, div:9.2},
+  {sym:'IGIHL',name:'IGI Holdings Limited',           sec:'Insurance',    price:256.86,chg:5.31, pct:2.11, vol:2100000, mcap:36640000000, pe:11.8,div:3.4},
+  {sym:'JVDC', name:'Javedan Corporation',            sec:'Real Estate',  price:77.58, chg:-2.52,pct:-3.16,vol:3400000,mcap:29550000000,  pe:0,   div:0},
+  {sym:'MUREB',name:'Murree Brewery Company',         sec:'Beverage',     price:1050.00,chg:-0.21,pct:-0.02,vol:280000,mcap:29050000000,  pe:16.4,div:3.2},
+  {sym:'FCEPL',name:'FrieslandCampina Engro Pak.',    sec:'Food',         price:86.73, chg:-1.25,pct:-1.42,vol:4800000,mcap:66490000000,  pe:12.8,div:3.2},
+  {sym:'SGF',  name:'Service Global Footwear',        sec:'Consumer',     price:114.02,chg:1.94, pct:1.73, vol:4200000, mcap:23540000000, pe:10.4,div:4.8},
+  {sym:'PABC', name:'Pakistan Aluminium Bev. Cans',   sec:'Packaging',    price:134.77,chg:-1.51,pct:-1.11,vol:2400000,mcap:48670000000,  pe:14.8,div:2.6},
+  {sym:'RMPL', name:'Rafhan Maize Products Co.',      sec:'Food',         price:9329.01,chg:6.33,pct:0.07, vol:68000,  mcap:86100000000,  pe:24.6,div:2.4},
+  {sym:'LCI',  name:'Lucky Core Industries',          sec:'Chemical',     price:293.33,chg:0.21, pct:0.07, vol:2800000, mcap:135370000000, pe:11.2,div:4.2},
+  {sym:'CPHL', name:'Citi Pharma Limited',            sec:'Pharma',       price:88.06, chg:0.87, pct:0.99, vol:4800000, mcap:19920000000, pe:18.6,div:2.2},
+  {sym:'SRVI', name:'Service Industries Limited',     sec:'Consumer',     price:1550.81,chg:-57.69,pct:-3.57,vol:680000,mcap:72870000000, pe:12.4,div:3.8},
+  {sym:'NICL', name:'Nimir Industrial Chemicals',     sec:'Chemical',     price:231.50,chg:0.93, pct:0.40, vol:1400000, mcap:25600000000, pe:12.4,div:3.6},
+  {sym:'BML',  name:'Bank Makramah Limited',          sec:'Banking',      price:6.08,  chg:0.02, pct:0.33, vol:12400000,mcap:40260000000, pe:0,   div:0},
+  {sym:'JSBL', name:'JS Bank Limited',                sec:'Banking',      price:16.63, chg:-0.10,pct:-0.60,vol:9800000,mcap:34100000000,  pe:5.4, div:7.2},
+  {sym:'SNBL2',name:'Soneri Bank (B)',                sec:'Banking',      price:25.80, chg:0.28, pct:1.10, vol:5400000, mcap:28000000000, pe:5.4, div:8.8},
+  {sym:'IPAK', name:'International Packaging Films',  sec:'Packaging',    price:28.13, chg:0.52, pct:1.88, vol:6800000, mcap:21720000000, pe:9.4, div:4.6},
+  {sym:'ISL2', name:'International Steels (B)',       sec:'Steel',        price:112.00,chg:0.32, pct:0.29, vol:3200000, mcap:48000000000, pe:8.6, div:5.4},
+  {sym:'IMS',  name:'Intermarket Securities',         sec:'Financial',    price:20.94, chg:-0.59,pct:-2.74,vol:4200000,mcap:26370000000,  pe:8.2, div:6.4},
+];
+
+// Deduplicate by symbol
+const seen = new Set();
+const stocks = COMPANIES.filter(s => { if(seen.has(s.sym)) return false; seen.add(s.sym); return true; });
+const sectors = ['All', ...new Set(stocks.map(s => s.sec).sort())];
+
+/* ─── STATE ─── */
+let selectedSym = 'OGDC';
+let selectedSector = 'All';
+let currentTF = '1D';
+let chartType = 'line';
+let mainChart = null;
+let allocChart = null;
+let tradeTab = 'buy';
+let scSortKey = 'mcap';
+
+/* ─── PORTFOLIO STATE (per user, localStorage) ─── */
+function getPortKey(email) { return `psxv_port_${email}`; }
+function loadPort(email) {
+  try {
+    const d = JSON.parse(localStorage.getItem(getPortKey(email)) || 'null');
+    if (d) return d;
+  } catch(e) {}
+  return { cash: DEMO_START_BALANCE, holdings: {}, history: [] };
+}
+function savePort(email, port) {
+  localStorage.setItem(getPortKey(email), JSON.stringify(port));
+}
+function getPort() {
+  const sess = getSession();
+  if (!sess) return null;
+  return loadPort(sess.email);
+}
+function setPort(port) {
+  const sess = getSession();
+  if (!sess) return;
+  savePort(sess.email, port);
+}
+
+/* ─── UTILS ─── */
+const fmt   = n => n.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtB  = n => n >= 1e12 ? (n/1e12).toFixed(2)+'T' : n >= 1e9 ? (n/1e9).toFixed(1)+'B' : n >= 1e6 ? (n/1e6).toFixed(1)+'M' : String(n);
+const fmtV  = n => n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(0)+'K' : String(n);
+const sign  = n => n >= 0 ? '+' : '';
+
+/* ─── PKT CLOCK ─── */
+function tick() {
+  const now = new Date();
+  const pkt = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Karachi' }));
+  const hh = String(pkt.getHours()).padStart(2,'0');
+  const mm = String(pkt.getMinutes()).padStart(2,'0');
+  const ss = String(pkt.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss} PKT`;
+}
+setInterval(tick, 1000); tick();
+
+/* ─── TICKER ─── */
+function buildTicker() {
+  const t = stocks.slice(0, 35).map(s =>
+    `<div class="tick-item" onclick="selectStock('${s.sym}');showPage('chart',document.querySelector('.nav-btn'))">
+      <span class="tick-sym">${s.sym}</span>
+      <span>₨${fmt(s.price)}</span>
+      <span class="tick-chg ${s.chg>=0?'up':'dn'}">${s.chg>=0?'▲':'▼'} ${Math.abs(s.pct).toFixed(2)}%</span>
+    </div>`).join('');
+  document.getElementById('ticker-track').innerHTML = t + t;
+}
+
+/* ─── SIDEBAR ─── */
+function buildSectorPills() {
+  document.getElementById('sector-pills').innerHTML = sectors.map(s =>
+    `<button class="spill ${s==='All'?'active':''}" onclick="setSector('${s}',this)">${s}</button>`).join('');
+}
+function setSector(s, btn) {
+  selectedSector = s;
+  document.querySelectorAll('.spill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSidebar();
+}
+function renderSidebar() {
+  const q = (document.getElementById('sidebar-search')?.value || '').toLowerCase();
+  const list = stocks.filter(s => {
+    const secOk = selectedSector === 'All' || s.sec === selectedSector;
+    const qOk = !q || s.sym.toLowerCase().includes(q) || s.name.toLowerCase().includes(q);
+    return secOk && qOk;
+  });
+  document.getElementById('stock-list').innerHTML = list.map(s =>
+    `<div class="sl-item ${s.sym===selectedSym?'active':''}" onclick="selectStock('${s.sym}')">
+      <div class="sl-left">
+        <div class="sl-sym">${s.sym}</div>
+        <div class="sl-name">${s.name}</div>
+      </div>
+      <div class="sl-right">
+        <div class="sl-price" style="color:${s.chg>=0?'var(--green)':'var(--red)'}">₨${fmt(s.price)}</div>
+        <div class="sl-chg ${s.chg>=0?'up':'dn'}">${s.chg>=0?'▲':'▼'} ${Math.abs(s.pct).toFixed(2)}%</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ─── SELECT STOCK ─── */
+function selectStock(sym) {
+  selectedSym = sym;
+  const s = stocks.find(x => x.sym === sym) || stocks[0];
+  const isUp = s.chg >= 0;
+  document.getElementById('sh-sym').textContent = s.sym;
+  document.getElementById('sh-name').textContent = s.name;
+  document.getElementById('sh-price').textContent = '₨' + fmt(s.price);
+  document.getElementById('sh-price').style.color = isUp ? 'var(--green)' : 'var(--red)';
+  document.getElementById('sh-chg').textContent = (isUp?'▲ +':'▼ ') + fmt(Math.abs(s.chg)) + ' (' + (isUp?'+':'') + s.pct.toFixed(2) + '%)';
+  document.getElementById('sh-chg').className = 'sh-chg ' + (isUp?'up':'dn');
+  document.getElementById('sh-open').textContent = '₨' + (s.price - (s.chg||0)*1.1).toFixed(2);
+  document.getElementById('sh-high').textContent = '₨' + (s.price + Math.abs(s.chg)*0.6).toFixed(2);
+  document.getElementById('sh-low').textContent  = '₨' + (s.price - Math.abs(s.chg)*0.8).toFixed(2);
+  document.getElementById('sh-vol').textContent  = fmtV(s.vol);
+  document.getElementById('sh-mcap').textContent = fmtB(s.mcap);
+  document.getElementById('bb-h52').textContent  = '₨' + (s.price*1.22).toFixed(2);
+  document.getElementById('bb-l52').textContent  = '₨' + (s.price*0.68).toFixed(2);
+  document.getElementById('bb-avgvol').textContent = fmtV(Math.round(s.vol*1.12));
+  document.getElementById('bb-sector').textContent = s.sec;
+  document.getElementById('bb-pe').textContent  = s.pe > 0 ? s.pe.toFixed(1)+'x' : 'N/A';
+  document.getElementById('bb-div').textContent = s.div > 0 ? s.div.toFixed(1)+'%' : 'N/A';
+  // Update trade panel
+  document.getElementById('tp-sym').textContent = s.sym;
+  document.getElementById('tp-live-price').textContent = '₨' + fmt(s.price);
+  document.getElementById('tp-qty').value = '';
+  updateTradeSummary();
+  renderSidebar();
+  renderMainChart();
+}
+
+/* ─── MAIN CHART ─── */
+function genChartData(sym, tf) {
+  const s = stocks.find(x => x.sym === sym) || stocks[0];
+  const base = s.price;
+  const cfg = { '1D':{n:13,r:base*.03}, '1W':{n:5,r:base*.05}, '1M':{n:22,r:base*.08},
+                '3M':{n:66,r:base*.12}, '6M':{n:130,r:base*.18}, '1Y':{n:252,r:base*.25} }[tf] || {n:13,r:base*.03};
+  const labels1D = ['9:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30'];
+  const labels = tf === '1D' ? labels1D : Array.from({length:cfg.n}, (_,i) => String(i+1));
+  let v = base - (s.chg||0), data = [];
+  for (let i = 0; i < cfg.n; i++) {
+    v += (Math.random()-.46) * (cfg.r/cfg.n*2);
+    v = Math.max(base*.5, v);
+    data.push(+v.toFixed(2));
+  }
+  data[data.length-1] = +base.toFixed(2);
+  return { labels, data };
+}
+
+function renderMainChart() {
+  const wrap = document.getElementById('main-chart-wrap');
+  const canvas = document.getElementById('mainChart');
+  const ctx = canvas.getContext('2d');
+  if (mainChart) mainChart.destroy();
+  const { labels, data } = genChartData(selectedSym, currentTF);
+  const s = stocks.find(x => x.sym === selectedSym) || stocks[0];
+  const isUp = s.chg >= 0;
+  const col = isUp ? '#26a69a' : '#ef5350';
+  const grad = ctx.createLinearGradient(0, 0, 0, wrap.clientHeight||300);
+  grad.addColorStop(0, isUp ? 'rgba(38,166,154,.2)' : 'rgba(239,83,80,.2)');
+  grad.addColorStop(1, 'transparent');
+  const ds = chartType === 'line' ? [{
+    data, borderColor:col, borderWidth:1.5, pointRadius:0, pointHoverRadius:4,
+    tension:.2, fill:true, backgroundColor:grad
+  }] : [{
+    data,
+    backgroundColor: data.map((_,i) => i===0||data[i]>=data[i-1] ? 'rgba(38,166,154,.65)' : 'rgba(239,83,80,.65)'),
+    borderColor:'transparent', borderWidth:0, type:'bar'
+  }];
+  mainChart = new Chart(ctx, {
+    type: chartType==='bar' ? 'bar' : 'line',
+    data: { labels, datasets: ds },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:{duration:300},
+      plugins: { legend:{display:false},
+        tooltip:{ mode:'index', intersect:false, backgroundColor:'#1e222d', borderColor:'#2a2e39', borderWidth:1,
+          titleColor:'#787b86', bodyColor:'#d1d4dc',
+          titleFont:{family:'IBM Plex Mono',size:9}, bodyFont:{family:'IBM Plex Mono',size:10},
+          callbacks:{label:c=>' ₨'+fmt(c.raw)} }},
+      scales: {
+        x:{ grid:{color:'rgba(42,46,57,.5)',drawBorder:false}, ticks:{color:'#434651',font:{family:'IBM Plex Mono',size:8},maxTicksLimit:12} },
+        y:{ grid:{color:'rgba(42,46,57,.5)',drawBorder:false}, position:'right',
+            ticks:{color:'#434651',font:{family:'IBM Plex Mono',size:8},callback:v=>'₨'+Math.round(v)} }
+      }
+    }
+  });
+  document.getElementById('demo-label').classList.add('show');
+}
+
+function setTF(tf, btn) {
+  currentTF = tf;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMainChart();
+}
+function setChartType(t, btn) {
+  chartType = t;
+  document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMainChart();
+}
+
+/* ─── DEMO TRADE PANEL ─── */
+function openTradePanel() {
+  const sess = getSession();
+  const tp = document.getElementById('trade-panel');
+  tp.style.display = 'flex';
+  tp.style.flexDirection = 'column';
+  // Resize chart area
+  document.getElementById('app-layout').style.gridTemplateColumns = '260px 1fr 260px';
+  const lock = document.getElementById('trade-lock');
+  if (!sess || !isAccessAllowed(sess.email)) {
+    lock.classList.add('show');
+  } else {
+    lock.classList.remove('show');
+    updateTradePanelBalance();
+  }
+  setTimeout(renderMainChart, 50);
+}
+function closeTradePanel() {
+  document.getElementById('trade-panel').style.display = 'none';
+  document.getElementById('app-layout').style.gridTemplateColumns = '260px 1fr';
+  setTimeout(renderMainChart, 50);
+}
+
+function setTradeTab(tab) {
+  tradeTab = tab;
+  document.getElementById('tab-buy').className = 'tp-tab' + (tab==='buy'?' active buy':'');
+  document.getElementById('tab-sell').className = 'tp-tab' + (tab==='sell'?' active sell':'');
+  document.getElementById('tp-execute').textContent = tab==='buy' ? 'PLACE BUY ORDER' : 'PLACE SELL ORDER';
+  document.getElementById('tp-execute').className = 'tp-execute ' + tab;
+  updateTradeSummary();
+}
+
+function updateTradeSummary() {
+  const s = stocks.find(x => x.sym === selectedSym) || stocks[0];
+  const qty = parseInt(document.getElementById('tp-qty')?.value) || 0;
+  const total = s.price * qty;
+  document.getElementById('ts-price').textContent = qty > 0 ? '₨'+fmt(s.price) : '—';
+  document.getElementById('ts-qty').textContent   = qty > 0 ? qty : '—';
+  document.getElementById('ts-total').textContent = qty > 0 ? '₨'+fmt(total) : '—';
+}
+
+function updateTradePanelBalance() {
+  const sess = getSession(); if (!sess) return;
+  const port = getPort();
+  document.getElementById('tp-balance').textContent = '₨' + fmt(port.cash);
+  const invested = Object.values(port.holdings).reduce((a,h) => a + h.shares * h.avgPrice, 0);
+  const currVal  = Object.entries(port.holdings).reduce((a,[sym,h]) => {
+    const s = stocks.find(x=>x.sym===sym); return a + h.shares * (s?s.price:h.avgPrice);
+  }, 0);
+  const pnl = currVal - invested;
+  document.getElementById('tp-invested').textContent = `Invested: ₨${fmt(invested)} · P&L: ${pnl>=0?'+':''}₨${fmt(pnl)}`;
+}
+
+function executeTrade() {
+  const sess = getSession(); if (!sess) return;
+  const s = stocks.find(x => x.sym === selectedSym);
+  const qty = parseInt(document.getElementById('tp-qty').value) || 0;
+  const msgEl = document.getElementById('tp-msg');
+  const show = (msg, type) => { msgEl.textContent=msg; msgEl.className=`tp-msg show ${type}`; setTimeout(()=>msgEl.classList.remove('show'),3000); };
+
+  if (qty <= 0) { show('Enter a valid quantity.', 'err'); return; }
+  const port = getPort();
+  const cost = s.price * qty;
+
+  if (tradeTab === 'buy') {
+    if (port.cash < cost) { show(`Insufficient balance. Need ₨${fmt(cost)}.`, 'err'); return; }
+    port.cash -= cost;
+    if (!port.holdings[s.sym]) port.holdings[s.sym] = { shares:0, avgPrice:0 };
+    const h = port.holdings[s.sym];
+    h.avgPrice = (h.avgPrice*h.shares + cost) / (h.shares + qty);
+    h.shares += qty;
+    port.history.unshift({ type:'BUY', sym:s.sym, qty, price:s.price, total:cost, time:Date.now() });
+    show(`✓ Bought ${qty} × ${s.sym} @ ₨${fmt(s.price)}`, 'ok');
+  } else {
+    const h = port.holdings[s.sym];
+    if (!h || h.shares < qty) { show(`You only hold ${h?.shares||0} shares of ${s.sym}.`, 'err'); return; }
+    const proceeds = s.price * qty;
+    h.shares -= qty;
+    if (h.shares === 0) delete port.holdings[s.sym];
+    port.cash += proceeds;
+    port.history.unshift({ type:'SELL', sym:s.sym, qty, price:s.price, total:proceeds, time:Date.now() });
+    show(`✓ Sold ${qty} × ${s.sym} @ ₨${fmt(s.price)}`, 'ok');
+  }
+
+  setPort(port);
+  document.getElementById('tp-qty').value = '';
+  updateTradeSummary();
+  updateTradePanelBalance();
+  renderPortfolio();
+}
+
+/* ─── QUICK BUY on portfolio page ─── */
+function buildQuickBuySyms() {
+  const sel = document.getElementById('qb-sym'); if (!sel) return;
+  sel.innerHTML = stocks.map(s => `<option value="${s.sym}">${s.sym} — ${s.name}</option>`).join('');
+  qbUpdatePrice();
+}
+function qbUpdatePrice() {
+  const sym = document.getElementById('qb-sym')?.value;
+  const s = stocks.find(x=>x.sym===sym);
+  document.getElementById('qb-price').textContent = s ? '₨'+fmt(s.price) : '—';
+  qbUpdateSummary();
+}
+function qbUpdateSummary() {
+  const sym = document.getElementById('qb-sym')?.value;
+  const s = stocks.find(x=>x.sym===sym);
+  const qty = parseInt(document.getElementById('qb-qty')?.value)||0;
+  document.getElementById('qb-total').textContent = (s&&qty>0) ? '₨'+fmt(s.price*qty) : '—';
+}
+function quickBuy() {
+  const sym = document.getElementById('qb-sym')?.value;
+  const qty = parseInt(document.getElementById('qb-qty')?.value)||0;
+  selectedSym = sym;
+  tradeTab = 'buy';
+  document.getElementById('tp-qty').value = qty;
+  executeTrade();
+  document.getElementById('qb-qty').value = '';
+  qbUpdateSummary();
+}
+
+/* ─── RENDER PORTFOLIO PAGE ─── */
+function renderPortfolio() {
+  const sess = getSession();
+  const lockEl = document.getElementById('portfolio-lock-screen');
+
+  if (!sess || !isAccessAllowed(sess.email)) {
+    lockEl.style.display = 'flex'; return;
+  }
+  lockEl.style.display = 'none';
+
+  const port = getPort();
+  const holdings = port.holdings;
+  const holdingSyms = Object.keys(holdings);
+
+  // Stats
+  const invested = holdingSyms.reduce((a,sym) => a + holdings[sym].shares * holdings[sym].avgPrice, 0);
+  const currVal  = holdingSyms.reduce((a,sym) => {
+    const s = stocks.find(x=>x.sym===sym); return a + holdings[sym].shares * (s?s.price:holdings[sym].avgPrice);
+  }, 0);
+  const pnl     = currVal - invested;
+  const pnlPct  = invested > 0 ? (pnl/invested)*100 : 0;
+  const total   = port.cash + currVal;
+
+  document.getElementById('ps-total').textContent    = '₨'+fmt(total);
+  document.getElementById('ps-total').style.color    = total >= DEMO_START_BALANCE ? 'var(--green)' : 'var(--red)';
+  document.getElementById('ps-cash').textContent     = '₨'+fmt(port.cash);
+  document.getElementById('ps-invested').textContent = '₨'+fmt(invested);
+  document.getElementById('ps-pnl').textContent      = (pnl>=0?'+':'')+'₨'+fmt(pnl);
+  document.getElementById('ps-pnl').style.color      = pnl>=0?'var(--green)':'var(--red)';
+  document.getElementById('ps-pnl-pct').textContent  = (pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%';
+  document.getElementById('ps-trades').textContent   = port.history.length;
+  document.getElementById('holdings-count').textContent = holdingSyms.length + ' position' + (holdingSyms.length!==1?'s':'');
+
+  // Holdings table
+  if (holdingSyms.length === 0) {
+    document.getElementById('holdings-body').innerHTML =
+      `<div class="empty-portfolio"><div class="empty-icon">📊</div>No holdings yet.<br>Click ⚡ DEMO TRADE on any stock to start.</div>`;
+  } else {
+    document.getElementById('holdings-body').innerHTML =
+      `<table class="port-table">
+        <thead><tr><th>SYMBOL</th><th>COMPANY</th><th>SHARES</th><th>AVG PRICE</th><th>CURR PRICE</th><th>CURR VALUE</th><th>P&L</th><th></th></tr></thead>
+        <tbody>` +
+      holdingSyms.map(sym => {
+        const h = holdings[sym];
+        const s = stocks.find(x=>x.sym===sym);
+        const curr = s ? s.price : h.avgPrice;
+        const val  = h.shares * curr;
+        const pl   = (curr - h.avgPrice) * h.shares;
+        const plPct= ((curr-h.avgPrice)/h.avgPrice)*100;
+        return `<tr>
+          <td class="port-sym">${sym}</td>
+          <td class="port-name">${s?.name||sym}</td>
+          <td>${h.shares.toLocaleString()}</td>
+          <td>₨${fmt(h.avgPrice)}</td>
+          <td style="color:${curr>=h.avgPrice?'var(--green)':'var(--red)'}">₨${fmt(curr)}</td>
+          <td>₨${fmt(val)}</td>
+          <td style="color:${pl>=0?'var(--green)':'var(--red)'}">${pl>=0?'+':''}₨${fmt(pl)}<br><span style="font-size:9px">${plPct>=0?'+':''}${plPct.toFixed(2)}%</span></td>
+          <td><button class="port-sell-btn" onclick="quickSell('${sym}')">SELL</button></td>
+        </tr>`;
+      }).join('') + `</tbody></table>`;
+  }
+
+  // Trade history
+  document.getElementById('hist-count').textContent = port.history.length + ' trade' + (port.history.length!==1?'s':'');
+  if (port.history.length === 0) {
+    document.getElementById('trade-history-body').innerHTML =
+      `<div style="padding:16px;text-align:center;color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:10px;">No trades yet</div>`;
+  } else {
+    document.getElementById('trade-history-body').innerHTML = port.history.slice(0,20).map(t => {
+      const d = new Date(t.time);
+      const pkt = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Karachi' }));
+      const ts = `${String(pkt.getHours()).padStart(2,'0')}:${String(pkt.getMinutes()).padStart(2,'0')} PKT`;
+      return `<div class="trade-hist-row">
+        <span class="th-type ${t.type.toLowerCase()}">${t.type}</span>
+        <span class="th-sym">${t.sym}</span>
+        <span class="th-qty">${t.qty}</span>
+        <span class="th-price">@ ₨${fmt(t.price)}</span>
+        <span class="th-total">₨${fmt(t.total)}</span>
+        <span class="th-time">${ts}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Allocation donut
+  renderAllocChart(port, holdingSyms);
+}
+
+function quickSell(sym) {
+  selectedSym = sym;
+  const port = getPort();
+  const h = port.holdings[sym];
+  if (!h) return;
+  tradeTab = 'sell';
+  document.getElementById('tp-qty').value = h.shares;
+  executeTrade();
+}
+
+function renderAllocChart(port, holdingSyms) {
+  const ctx = document.getElementById('allocChart');
+  if (!ctx) return;
+  if (allocChart) { allocChart.destroy(); allocChart = null; }
+  const colors = ['#2962ff','#26a69a','#f0b429','#ef5350','#7c3aed','#06b6d4','#84cc16','#f97316','#ec4899','#6366f1'];
+  if (holdingSyms.length === 0) {
+    allocChart = new Chart(ctx, {
+      type:'doughnut',
+      data:{ labels:['Cash'], datasets:[{ data:[100], backgroundColor:['#2a2e39'], borderWidth:0 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
+    });
+    return;
+  }
+  const labels = ['Cash', ...holdingSyms];
+  const data   = [port.cash, ...holdingSyms.map(sym => {
+    const h = port.holdings[sym];
+    const s = stocks.find(x=>x.sym===sym);
+    return h.shares * (s?s.price:h.avgPrice);
+  })];
+  const total = data.reduce((a,v)=>a+v,0);
+  allocChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:['#363c4e',...holdingSyms.map((_,i)=>colors[i%colors.length])], borderWidth:0, borderRadius:2 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#787b86', font:{family:'IBM Plex Mono',size:9}, padding:8, boxWidth:10 } },
+        tooltip:{ callbacks:{ label: c => ` ${c.label}: ₨${fmt(c.raw)} (${((c.raw/total)*100).toFixed(1)}%)` } } }
+    }
+  });
+}
+
+/* ─── MARKET PAGE ─── */
+function renderMarket() {
+  const byPct = [...stocks].sort((a,b) => b.pct-a.pct);
+  const moverHtml = (list) => list.map((s,i) =>
+    `<div class="mr-row" onclick="selectStock('${s.sym}');showPage('chart',document.querySelector('.nav-btn'))">
+      <div class="mr-n">${i+1}</div><div class="mr-sym">${s.sym}</div>
+      <div class="mr-name">${s.name}</div>
+      <span class="badge ${s.chg>=0?'up':'dn'}">${s.chg>=0?'+':''}${s.pct.toFixed(2)}%</span>
+    </div>`).join('');
+  document.getElementById('m-gainers').innerHTML = moverHtml(byPct.slice(0,8));
+  document.getElementById('m-losers').innerHTML  = moverHtml([...stocks].sort((a,b)=>a.pct-b.pct).slice(0,8));
+  document.getElementById('m-active').innerHTML  = [...stocks].sort((a,b)=>b.vol-a.vol).slice(0,8).map((s,i) =>
+    `<div class="mr-row" onclick="selectStock('${s.sym}');showPage('chart',document.querySelector('.nav-btn'))">
+      <div class="mr-n">${i+1}</div><div class="mr-sym">${s.sym}</div>
+      <div class="mr-name">${s.name}</div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2)">${fmtV(s.vol)}</span>
+    </div>`).join('');
+  const secMap = {};
+  stocks.forEach(s => { if(!secMap[s.sec]) secMap[s.sec]={sum:0,cnt:0}; secMap[s.sec].sum+=s.pct; secMap[s.sec].cnt++; });
+  document.getElementById('m-sectors').innerHTML = Object.entries(secMap)
+    .map(([k,v]) => ({sec:k, avg:v.sum/v.cnt})).sort((a,b)=>b.avg-a.avg)
+    .map(s => `<div class="mr-row"><div class="mr-name" style="font-weight:600;color:var(--text)">${s.sec}</div>
+      <span class="badge ${s.avg>=0?'up':'dn'}">${s.avg>=0?'+':''}${s.avg.toFixed(2)}%</span></div>`).join('');
+}
+
+/* ─── SCREENER ─── */
+function buildScreenerSectors() {
+  const sel = document.getElementById('sc-sector'); if(!sel) return;
+  sel.innerHTML = '<option value="">All Sectors</option>' + sectors.slice(1).map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+function scSort(k) { scSortKey=k; document.getElementById('sc-sort').value=k; renderScreener(); }
+function renderScreener() {
+  const q   = (document.getElementById('sc-search')?.value||'').toLowerCase();
+  const sec = document.getElementById('sc-sector')?.value||'';
+  const srt = document.getElementById('sc-sort')?.value||scSortKey;
+  let list  = stocks.filter(s => (!q||s.sym.toLowerCase().includes(q)||s.name.toLowerCase().includes(q)) && (!sec||s.sec===sec));
+  list.sort((a,b) => srt==='mcap'?b.mcap-a.mcap:srt==='price'?b.price-a.price:srt==='chg'?b.pct-a.pct:srt==='vol'?b.vol-a.vol:a.sym.localeCompare(b.sym));
+  document.getElementById('sc-body').innerHTML = list.map((s,i) =>
+    `<tr onclick="selectStock('${s.sym}');showPage('chart',document.querySelectorAll('.nav-btn')[0])">
+      <td>${i+1}</td><td class="sym-c">${s.sym}</td><td class="name-c">${s.name}</td>
+      <td>₨${fmt(s.price)}</td>
+      <td><span class="badge ${s.chg>=0?'up':'dn'}">${sign(s.pct)}${s.pct.toFixed(2)}%</span></td>
+      <td>${fmtB(s.mcap)}</td><td>${fmtV(s.vol)}</td>
+      <td style="color:var(--text2);font-size:9px">${s.sec}</td>
+    </tr>`).join('');
+}
+
+/* ─── PAGES ─── */
+function showPage(p, btn) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (p==='chart')    { setTimeout(renderMainChart, 50); }
+  if (p==='market')   { renderMarket(); }
+  if (p==='screener') { buildScreenerSectors(); renderScreener(); }
+  if (p==='portfolio'){ renderPortfolio(); buildQuickBuySyms(); }
+}
+function goPortfolio() {
+  showPage('portfolio', document.getElementById('nav-portfolio'));
+}
+
+/* ─── AUTH ─── */
+function hashPass(p) { let h=0; for(let i=0;i<p.length;i++){h=(h<<5)-h+p.charCodeAt(i);h|=0;} return h.toString(36); }
+function getUsers() { try{ return JSON.parse(localStorage.getItem('psxv_users')||'[]'); }catch{ return []; } }
+function saveUsers(u) { localStorage.setItem('psxv_users', JSON.stringify(u)); }
+function getSession() { try{ return JSON.parse(sessionStorage.getItem('psxv_sess')||'null'); }catch{ return null; } }
+function setSession(s) { sessionStorage.setItem('psxv_sess', JSON.stringify(s)); }
+function clearSession() { sessionStorage.removeItem('psxv_sess'); }
+
+function getSubStatus(email) {
+  const users = getUsers();
+  const u = users.find(x => x.email === email);
+  if (!u) return { status:'none' };
+  const now = Date.now();
+  if (u.subActive && u.subExpiry && now < u.subExpiry) return { status:'paid', expiry:u.subExpiry, daysLeft:Math.ceil((u.subExpiry-now)/86400000) };
+  if (u.trialStart) {
+    const end = u.trialStart + TRIAL_DAYS*86400000;
+    const days = Math.ceil((end-now)/86400000);
+    if (now < end) return { status:'trial', daysLeft:days };
+    return { status:'expired' };
+  }
+  return { status:'none' };
+}
+function isAccessAllowed(email) {
+  const s = getSubStatus(email);
+  return s.status === 'trial' || s.status === 'paid';
+}
+
+function renderBanners() {
+  const sess = getSession();
+  document.getElementById('trial-banner').style.display   = 'none';
+  document.getElementById('expired-banner').style.display = 'none';
+  if (!sess) return;
+  const sub = getSubStatus(sess.email);
+  if (sub.status === 'trial') {
+    document.getElementById('trial-banner').style.display = 'flex';
+    document.getElementById('trial-days-left').textContent = sub.daysLeft + ' day' + (sub.daysLeft!==1?'s':'')+' left';
+  } else if (sub.status === 'expired') {
+    document.getElementById('expired-banner').style.display = 'flex';
+  }
+  // Lock/unlock demo trading nav
+  const lock = document.getElementById('portfolio-lock');
+  if (lock) lock.style.display = isAccessAllowed(sess.email) ? 'none' : 'inline';
+}
+
+function renderNavUser() {
+  const sess = getSession();
+  const a = document.getElementById('user-nav');
+  if (sess) {
+    const ini = sess.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const sub = getSubStatus(sess.email);
+    const badge = sub.status==='paid'  ? '<span class="sub-badge active">PRO</span>' :
+                  sub.status==='trial' ? `<span class="sub-badge trial">TRIAL ${sub.daysLeft}d</span>` :
+                                         '<span class="sub-badge expired">EXPIRED</span>';
+    a.innerHTML = `<button class="user-chip" onclick="toggleDD(this)"><div class="uavatar">${ini}</div><span>${sess.name.split(' ')[0]}</span>${badge}<span style="opacity:.4;margin-left:2px">▾</span></button>`;
+  } else {
+    a.innerHTML = `<button class="login-btn" onclick="openAuth('login')">LOGIN / SIGN UP</button>`;
+  }
+}
+
+function toggleDD(el) {
+  const ex = document.getElementById('user-dropdown'); if(ex){ex.remove();return;}
+  const sess = getSession(); if(!sess) return;
+  const sub = getSubStatus(sess.email);
+  const r = el.getBoundingClientRect();
+  const dd = document.createElement('div'); dd.id='user-dropdown';
+  dd.style.cssText = `position:fixed;top:${r.bottom+4}px;right:${window.innerWidth-r.right}px;background:var(--panel);border:1px solid var(--border);z-index:600;min-width:220px;`;
+  const subLine = sub.status==='paid'  ? `<div style="color:var(--green);font-size:9px;margin-top:3px">✓ Pro — expires ${new Date(sub.expiry).toLocaleDateString()}</div>` :
+                  sub.status==='trial' ? `<div style="color:#7bc843;font-size:9px;margin-top:3px">🕐 Trial — ${sub.daysLeft} days left</div>` :
+                                         `<div style="color:var(--red);font-size:9px;margin-top:3px">⚠ Trial expired</div>`;
+  const upgradeRow = sub.status!=='paid'
+    ? `<div class="dd-item" style="color:var(--orange);border-top:1px solid var(--border)" onclick="openPaywall();document.getElementById('user-dropdown')?.remove()">💳 Upgrade to Pro — $10/mo</div>`
+    : `<div class="dd-item" style="color:var(--text2);cursor:default;border-top:1px solid var(--border)">✓ Pro subscription active</div>`;
+  dd.innerHTML = `
+    <div class="dd-item" style="cursor:default;border-bottom:1px solid var(--border)">
+      <div style="font-weight:700;color:var(--text)">${sess.name}</div>
+      <div style="color:var(--text3);font-size:9px">${sess.email}</div>
+      ${subLine}
+    </div>
+    ${upgradeRow}
+    <div class="dd-item" style="color:var(--red)" onclick="doLogout()">⏏ Sign Out</div>`;
+  document.body.appendChild(dd);
+  setTimeout(()=>document.addEventListener('click',function h(e){if(!dd.contains(e.target)&&!el.contains(e.target)){dd.remove();document.removeEventListener('click',h);}},true),10);
+}
+
+function doLogout() {
+  clearSession(); renderNavUser(); renderBanners();
+  document.getElementById('user-dropdown')?.remove();
+}
+
+function openAuth(tab) {
+  switchAuthTab(tab||'login');
+  ['l-email','l-pass','su-name','su-email','su-pass','su-pass2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['l-err','l-ok','su-err','su-ok'].forEach(id=>{const e=document.getElementById(id);if(e){e.className='auth-msg error';e.textContent='';}});
+  document.getElementById('auth-overlay').classList.add('show');
+}
+function closeAuth() { document.getElementById('auth-overlay').classList.remove('show'); }
+document.getElementById('auth-overlay').addEventListener('click', e => { if(e.target.id==='auth-overlay') closeAuth(); });
+
+function switchAuthTab(t) {
+  document.getElementById('panel-login').style.display  = t==='login'  ? 'block' : 'none';
+  document.getElementById('panel-signup').style.display = t==='signup' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active',  t==='login');
+  document.getElementById('tab-signup').classList.toggle('active', t==='signup');
+}
+function showMsg(id,msg,type){const e=document.getElementById(id);if(!e)return;e.textContent=msg;e.className=`auth-msg ${type} show`;}
+
+function doLogin() {
+  const email = document.getElementById('l-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('l-pass').value;
+  if(!email||!pass){showMsg('l-err','Please fill all fields.','error');return;}
+  const user = getUsers().find(u=>u.email===email);
+  if(!user||user.passHash!==hashPass(pass)){showMsg('l-err','Incorrect email or password.','error');return;}
+  setSession({email:user.email, name:user.name});
+  showMsg('l-ok','Signed in!','success');
+  setTimeout(()=>{ closeAuth(); renderNavUser(); renderBanners(); },600);
+}
+
+function doSignup() {
+  const name  = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('su-pass').value;
+  const pass2 = document.getElementById('su-pass2').value;
+  if(!name||!email||!pass||!pass2){showMsg('su-err','Please fill all fields.','error');return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showMsg('su-err','Enter a valid email.','error');return;}
+  if(pass.length<6){showMsg('su-err','Password min. 6 characters.','error');return;}
+  if(pass!==pass2){showMsg('su-err','Passwords do not match.','error');return;}
+  const users = getUsers();
+  if(users.find(u=>u.email===email)){showMsg('su-err','Email already registered.','error');return;}
+  users.push({ email, name, passHash:hashPass(pass), trialStart:Date.now(), subActive:false });
+  saveUsers(users);
+  setSession({email, name});
+  showMsg('su-ok','Account created! 30-day free trial started 🎉','success');
+  setTimeout(()=>{ closeAuth(); renderNavUser(); renderBanners(); },800);
+}
+
+/* ─── STRIPE PAYWALL ─── */
+function openPaywall() {
+  document.getElementById('paywall-overlay').classList.add('show');
+}
+function closePaywall() {
+  document.getElementById('paywall-overlay').classList.remove('show');
+}
+document.getElementById('paywall-overlay').addEventListener('click', e => {
+  if(e.target.id==='paywall-overlay') closePaywall();
+});
+
+async function redirectToStripe() {
+  const sess = getSession();
+  const btn = document.getElementById('stripe-btn');
+  btn.textContent = 'Redirecting to Stripe...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(API + '/api/create-checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: sess?.email||'', name: sess?.name||'' })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Could not connect to payment server. Make sure server.js is running.\n\nError: ' + (data.error||'Unknown'));
+      btn.textContent = '💳  SUBSCRIBE WITH STRIPE — $10/mo';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    alert('Server not running. Start the backend:\n\ncd psxview && npm install && node server.js');
+    btn.textContent = '💳  SUBSCRIBE WITH STRIPE — $10/mo';
+    btn.disabled = false;
+  }
+}
+
+// Handle Stripe success redirect
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('session_id') && urlParams.get('email')) {
+  const email = decodeURIComponent(urlParams.get('email'));
+  // Mark user as paid locally (server webhook is the source of truth)
+  const users = getUsers();
+  const u = users.find(x=>x.email===email);
+  if (u) { u.subActive=true; u.subExpiry=Date.now()+(30*86400000); saveUsers(users); }
+  // Clear URL params
+  window.history.replaceState({}, '', '/');
+  setTimeout(()=>{ renderNavUser(); renderBanners(); alert('🎉 Subscription activated! Welcome to PSXView Pro.'); }, 200);
+}
+
+/* ─── LIVE SIMULATION ─── */
+function simulateLive() {
+  stocks.forEach(s => {
+    const d = (Math.random()-.487)*.8;
+    s.price = Math.max(0.5, +(s.price+d).toFixed(2));
+    s.chg   = +(s.chg+(d*.04)).toFixed(2);
+    s.pct   = +((s.chg/(s.price-s.chg+0.001))*100).toFixed(2);
+  });
+  buildTicker();
+  // Update selected stock header
+  const s = stocks.find(x=>x.sym===selectedSym);
+  if (s && document.getElementById('page-chart').classList.contains('active')) {
+    document.getElementById('sh-price').textContent = '₨'+fmt(s.price);
+    document.getElementById('sh-price').style.color = s.chg>=0?'var(--green)':'var(--red)';
+    document.getElementById('sh-chg').textContent = (s.chg>=0?'▲ +':'▼ ')+fmt(Math.abs(s.chg))+' ('+(s.chg>=0?'+':'')+s.pct.toFixed(2)+'%)';
+    document.getElementById('sh-chg').className = 'sh-chg '+(s.chg>=0?'up':'dn');
+    document.getElementById('tp-live-price').textContent = '₨'+fmt(s.price);
+    updateTradeSummary();
+  }
+  if (document.getElementById('page-portfolio').classList.contains('active')) renderPortfolio();
+}
+
+/* ─── INIT ─── */
+buildSectorPills();
+buildTicker();
+renderNavUser();
+renderBanners();
+renderSidebar();
+selectStock('OGDC');
+setInterval(simulateLive, 2500);
+window.addEventListener('resize', ()=>{ if(mainChart) renderMainChart(); });
+</script>
+</body>
+</html>
